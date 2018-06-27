@@ -79,5 +79,26 @@ namespace BiGPay
                 }
             }
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //Periode periode = new Periode(DateTime.Now);
+            //List<DateTime> liste = periode.RetournerTousLesJoursFeriesPourLaPeriode(DateTime.Now);
+            //MessageBox.Show("Pâques    : " + periode.LundiDePaques.ToLongDateString() + "\n" +
+            //                 "Ascension : " + periode.JeudiDeLAscension.ToLongDateString() + "\n" +
+            //                 "Pentecôte : " + periode.LundiDePentecote.ToLongDateString() + "\n" +
+            //                 "Jour de l'an : " + periode.JourDeLAn.ToLongDateString() + "\n" +
+            //                 "Fete du travail : " + periode.FeteDuTravail.ToLongDateString() + "\n" +
+            //                 "8 mai : " + periode.HuitMai1945.ToLongDateString() + "\n" +
+            //                 "Fete nationale : " + periode.FeteNationale.ToLongDateString() + "\n" +
+            //                 "Assomption : " + periode.Assomption.ToLongDateString() + "\n" +
+            //                 "Toussait : " + periode.Toussaint.ToLongDateString() + "\n" +
+            //                 "Armistice : " + periode.Armistice.ToLongDateString() + "\n" +
+            //                 "Noel : " + periode.Noel.ToLongDateString() + "\n" +
+            //                 "DateDebut : " + periode.DateDebutPeriode.ToLongDateString() + "\n"+
+            //                 "DateFin : " + periode.DateFinPeriode.ToLongDateString() + "\n");
+        }
+
+        
     }
 }
