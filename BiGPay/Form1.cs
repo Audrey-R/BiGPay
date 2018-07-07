@@ -59,7 +59,7 @@ namespace BiGPay
                     //Création des variables qui contiendront les données des classeurs
                     ClasseurResultats classeurResultats = new ClasseurResultats();
                     ClasseurCollaborateurs classeurCollaborateurs = new ClasseurCollaborateurs(cheminDossier + @"\Collaborateurs.xlsx");
-                    //ClasseurAbsences classeurAbsences = new ClasseurAbsences(cheminDossier + @"\Absences.xlsx");
+                    ClasseurAbsences classeurAbsences = new ClasseurAbsences(cheminDossier + @"\Absences.xlsx");
                     //ClasseurExcel classeurAstreintes = new ClasseurExcel(cheminDossier + @"\Astreintes.xlsx");
                     //ClasseurExcel classeurHeuresSup = new ClasseurExcel(cheminDossier + @"\Heures_sup.xlsx");
                     //ClasseurExcel classeurWeekEndFeries = new ClasseurExcel(cheminDossier + @"\Weekend_Feries.xlsx");
@@ -75,7 +75,17 @@ namespace BiGPay
                         {
                             classeurResultats.RemplirColonneEntreesSorties(ligneACompleter, index, classeurCollaborateurs);
                         }
-                    } 
+                    }
+                    //Fermeture du classeurCollaborateurs
+                    classeurCollaborateurs.Classeur.Close(false, Type.Missing, Type.Missing);
+
+                    //Remplissage de la partie liée aux absences dans le classeur de résultats
+                    classeurResultats.CreerPeriodePaie(classeurAbsences);
+
+
+
+                    //Fermeture du formulaire
+                    Close();
                 }
             }
         }

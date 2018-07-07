@@ -73,7 +73,7 @@ namespace BiGPay
             }
         }
 
-        void Application_WorkbookAfterSave(Workbook Classeur, bool Success)
+        public void Application_WorkbookAfterSave(Workbook Classeur, bool Success)
         {
             Classeur.Close();
             ExcelApp.Quit();

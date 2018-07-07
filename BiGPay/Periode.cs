@@ -15,8 +15,8 @@ namespace BiGPay
 
         public Periode(DateTime datePremiereAbsenceEnregistree)
         {
-            DateDebutPeriode = new DateTime(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Month, 1);
-            DateFinPeriode = new DateTime(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Month,DateTime.DaysInMonth(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Month));
+            DateDebutPeriode = new DateTime(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Day, 1);
+            DateFinPeriode = new DateTime(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Day,DateTime.DaysInMonth(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Day));
             JoursFeries = RetournerTousLesJoursFeriesPourLaPeriode(datePremiereAbsenceEnregistree);
             //Jour de solidarite à ôter de la liste
             ExtraireJourDeSolidarite(JoursFeries, LundiDePentecote);

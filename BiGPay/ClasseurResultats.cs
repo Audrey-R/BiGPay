@@ -88,5 +88,17 @@ namespace BiGPay
                 celluleACompleter.Value = classeurCollaborateurs.ObtenirEntreesEtSortiesDuMois(index).ToString();
             }
         }
+
+        public void CreerPeriodePaie(ClasseurAbsences classeurAbsences)
+        {
+            if (DerniereLigne > 1)
+            {
+                classeurAbsences.PremiereDateAbsence = Convert.ToDateTime(classeurAbsences.FeuilleActive.Cells[ClasseurExcel._PremiereLigne, ClasseurAbsences._ColonneDepartAbsence].Text);
+                Periode periode = new Periode(classeurAbsences.PremiereDateAbsence);
+                //Remplissage de la cellule concernant l'information du mois en cours dans le classeur paie
+                FeuilleActive.Range["B6"].Value = periode.DateDebutPeriode.ToString("MMMM yyyy");
+                string blabla = "blabla";
+            }
+        }
     }
 }
