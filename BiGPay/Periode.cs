@@ -12,11 +12,12 @@ namespace BiGPay
                          HuitMai1945, JeudiDeLAscension, LundiDePentecote, 
                          FeteNationale, Assomption, Toussaint, Armistice, 
                          Noel;
-
+        public static string[] _Formats = { "MM/dd/yyyy", "MMM-dd-yyyy", "yyyy-MM-dd", "MM-dd-yyyy", "MM-dd-yy", "M/d/yyyy", "MMM dd yyyy", "M/yyyy" };
+        
         public Periode(DateTime datePremiereAbsenceEnregistree)
         {
-            DateDebutPeriode = new DateTime(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Day, 1);
-            DateFinPeriode = new DateTime(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Day,DateTime.DaysInMonth(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Day));
+            DateDebutPeriode = new DateTime(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Month, 1);
+            DateFinPeriode = new DateTime(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Month,DateTime.DaysInMonth(datePremiereAbsenceEnregistree.Year, datePremiereAbsenceEnregistree.Month));
             JoursFeries = RetournerTousLesJoursFeriesPourLaPeriode(datePremiereAbsenceEnregistree);
             //Jour de solidarite à ôter de la liste
             ExtraireJourDeSolidarite(JoursFeries, LundiDePentecote);

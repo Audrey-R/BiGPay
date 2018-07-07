@@ -56,6 +56,7 @@ namespace BiGPay
                 }
                 else
                 {
+                    #region Initialisation_Classeurs
                     //Création des variables qui contiendront les données des classeurs
                     ClasseurResultats classeurResultats = new ClasseurResultats();
                     ClasseurCollaborateurs classeurCollaborateurs = new ClasseurCollaborateurs(cheminDossier + @"\Collaborateurs.xlsx");
@@ -63,7 +64,9 @@ namespace BiGPay
                     //ClasseurExcel classeurAstreintes = new ClasseurExcel(cheminDossier + @"\Astreintes.xlsx");
                     //ClasseurExcel classeurHeuresSup = new ClasseurExcel(cheminDossier + @"\Heures_sup.xlsx");
                     //ClasseurExcel classeurWeekEndFeries = new ClasseurExcel(cheminDossier + @"\Weekend_Feries.xlsx");
+                    #endregion
 
+                    #region Remplissage_Collaborateurs
                     //Remplissage de la partie liée aux collaborateurs dans le classeur de résultats
                     classeurResultats.RemplirColonneCollaborateurs(classeurCollaborateurs);
                     classeurResultats.RemplirColonneMatricules(classeurCollaborateurs);
@@ -78,10 +81,30 @@ namespace BiGPay
                     }
                     //Fermeture du classeurCollaborateurs
                     classeurCollaborateurs.Classeur.Close(false, Type.Missing, Type.Missing);
+                    #endregion
 
+                    #region Remplissage_Absences
                     //Remplissage de la partie liée aux absences dans le classeur de résultats
                     classeurResultats.CreerPeriodePaie(classeurAbsences);
-
+                    for (int index = 1; index <= classeurAbsences.DerniereLigne; index++)
+                    {
+                        //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
+                        long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurAbsences, index);
+                        if (ligneACompleter != 0)
+                        {
+                            classeurResultats.RemplirColonne("Congés_Payés", ClasseurResultats._ColonneCongesPayes, ligneACompleter, index, classeurAbsences);
+                            classeurResultats.RemplirTotalColonne("Congés_Payés", ClasseurResultats._ColonneTotalCongesPayes, ligneACompleter, index, classeurAbsences);
+                            classeurResultats.RemplirColonne("RTT", ClasseurResultats._ColonneRTT, ligneACompleter, index, classeurAbsences);
+                            classeurResultats.RemplirTotalColonne("RTT", ClasseurResultats._ColonneTotalRTT, ligneACompleter, index, classeurAbsences);
+                            classeurResultats.RemplirColonne("Formation", ClasseurResultats._ColonneFormation, ligneACompleter, index, classeurAbsences);
+                            classeurResultats.RemplirTotalColonne("Formation", ClasseurResultats._ColonneTotalFormation, ligneACompleter, index, classeurAbsences);
+                            classeurResultats.RemplirColonne("Maladie", ClasseurResultats._ColonneMaladie, ligneACompleter, index, classeurAbsences);
+                            classeurResultats.RemplirTotalColonne("Maladie", ClasseurResultats._ColonneTotalMaladie, ligneACompleter, index, classeurAbsences);
+                            classeurResultats.RemplirColonne("Récupération", ClasseurResultats._ColonneRecup, ligneACompleter, index, classeurAbsences);
+                            classeurResultats.RemplirTotalColonne("Récupération", ClasseurResultats._ColonneTotalRecup, ligneACompleter, index, classeurAbsences);
+                        }
+                    }
+                    #endregion
 
 
                     //Fermeture du formulaire

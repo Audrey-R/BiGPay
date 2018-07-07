@@ -16,11 +16,12 @@ namespace BiGPay
         public const int _ColonneDatesEntreeSortie = 8;
         private new const int _PremiereColonne = 2;
 
+        public ClasseurCollaborateurs() { }
         public ClasseurCollaborateurs(string libelleClasseur)
         {
             ExcelApp = (Microsoft.Office.Interop.Excel.Application)Marshal.GetActiveObject("Excel.Application");
-            ExcelApp.Application.DisplayAlerts = true;
-            ExcelApp.Visible = true;
+            ExcelApp.Application.DisplayAlerts = false;
+            ExcelApp.Visible = false;
             Classeur = ExcelApp.Workbooks.Open(libelleClasseur);
             Libelle = Classeur.Name;
             FeuilleActive = Classeur.Sheets[1];
