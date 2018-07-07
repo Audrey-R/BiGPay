@@ -9,6 +9,25 @@ namespace BiGPay
 {
     class ClasseurResultats : ClasseurExcel
     {
+        public const int _ColonneMatricules = 1;
+        public const int _ColonneCollaborateurs = 2;
+        public const int _ColonneEntreesSorties = 3;
+        public const int _ColonneJoursOuvres = 5;
+        public const int _ColonneJoursTravailles = 6;
+        public const int _ColonneTotalCongesPayes = 7;
+        public const int _ColonneCongesPayes = 8;
+        public const int _ColonneTotalCongesExceptionnels = 9;
+        public const int _ColonneCongesExceptionnels = 10;
+        public const int _ColonneTotalRTT = 11;
+        public const int _ColonneRTT = 12;
+        public const int _ColonneTotalRecup = 13;
+        public const int _ColonneRecup = 14;
+        public const int _ColonneTotalFormation = 15;
+        public const int _ColonneFormation = 16;
+        public const int _ColonneTotalMaladie = 17;
+        public const int _ColonneMaladie = 18;
+        public new const int _PremiereLigne = 7;
+
         public ClasseurResultats()
         {
             ExcelApp = new Application();
@@ -20,24 +39,37 @@ namespace BiGPay
             CelluleA1 = FeuilleActive.get_Range("A1", Type.Missing);
         }
 
-        public void RemplirColonneCollaborateurs(ClasseurExcel classeurCollaborateurs)
+        public void RemplirColonneCollaborateurs(ClasseurCollaborateurs classeurCollaborateurs)
         {
             DerniereLigne = 5 + classeurCollaborateurs.DerniereLigne;
-            FeuilleActive.Range["A7", "A" + DerniereLigne].Value
-            = classeurCollaborateurs.FeuilleActive.Range["C2", "C" + classeurCollaborateurs.DerniereLigne].Value;
+            FeuilleActive.Range[
+                ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, 
+                ConvertirColonneEnLettre(_ColonneCollaborateurs) + DerniereLigne
+            ].Value
+            = classeurCollaborateurs.FeuilleActive.Range[
+                ConvertirColonneEnLettre(ClasseurCollaborateurs._ColonneCollaborateurs) + ClasseurExcel._PremiereLigne, 
+                ConvertirColonneEnLettre(ClasseurCollaborateurs._ColonneCollaborateurs) + classeurCollaborateurs.DerniereLigne
+            ].Value;
         }
 
-        public void RemplirColonneMatricules(ClasseurExcel classeurCollaborateurs)
+        public void RemplirColonneMatricules(ClasseurCollaborateurs classeurCollaborateurs)
         {
-            FeuilleActive.Range["B7", "B" + DerniereLigne].Value
-            = classeurCollaborateurs.FeuilleActive.Range["B2", "B" + classeurCollaborateurs.DerniereLigne].Value;
+            FeuilleActive.Range[
+                ConvertirColonneEnLettre(_ColonneMatricules) + _PremiereLigne,
+                ConvertirColonneEnLettre(_ColonneMatricules) + DerniereLigne
+            ].Value
+            = classeurCollaborateurs.FeuilleActive.Range[
+                ConvertirColonneEnLettre(ClasseurCollaborateurs._ColonneMatricules) + ClasseurExcel._PremiereLigne,
+                ConvertirColonneEnLettre(ClasseurCollaborateurs._ColonneMatricules) + classeurCollaborateurs.DerniereLigne
+           ].Value;
         }
 
-        public long RechercherCollaborateur(ClasseurExcel classeurCollaborateurs, int index)
+        public long RechercherCollaborateur(ClasseurCollaborateurs classeurCollaborateurs, int index)
         {
             LigneAcompleter = 0;
-            classeurCollaborateurs.Collaborateur = classeurCollaborateurs.Donnees.Cells[index, 1];
-            Collaborateur = FeuilleActive.Cells[6, 2].Find(classeurCollaborateurs.Collaborateur.Text,
+            classeurCollaborateurs.Collaborateur = classeurCollaborateurs.Donnees.Cells[index, ClasseurCollaborateurs._ColonneCollaborateurs-1];
+            Collaborateur = FeuilleActive.Cells[_PremiereLigne, _ColonneCollaborateurs]
+                            .Find(classeurCollaborateurs.Collaborateur.Text,
                             Type.Missing, XlFindLookIn.xlValues, XlLookAt.xlPart, Type.Missing,
                             XlSearchDirection.xlNext, Type.Missing, Type.Missing, Type.Missing
                             );
@@ -50,7 +82,7 @@ namespace BiGPay
 
         public void RemplirColonneEntreesSorties(long ligneACompleter, int index, ClasseurCollaborateurs classeurCollaborateurs)
         {
-            Range celluleACompleter = FeuilleActive.Cells[ligneACompleter, 3];
+            Range celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneEntreesSorties];
             if(classeurCollaborateurs.ObtenirEntreesEtSortiesDuMois(index) != null)
             {
                 celluleACompleter.Value = classeurCollaborateurs.ObtenirEntreesEtSortiesDuMois(index).ToString();

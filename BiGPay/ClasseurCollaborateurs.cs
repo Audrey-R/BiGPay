@@ -10,6 +10,12 @@ namespace BiGPay
 {
     public class ClasseurCollaborateurs : ClasseurExcel
     {
+        public const int _ColonneEntreeSortie = 1;
+        public const int _ColonneCollaborateurs = 2;
+        public const int _ColonneMatricules = 3;
+        public const int _ColonneDatesEntreeSortie = 8;
+        private new const int _PremiereColonne = 2;
+
         public ClasseurCollaborateurs(string libelleClasseur)
         {
             ExcelApp = (Microsoft.Office.Interop.Excel.Application)Marshal.GetActiveObject("Excel.Application");
@@ -18,9 +24,9 @@ namespace BiGPay
             Classeur = ExcelApp.Workbooks.Open(libelleClasseur);
             Libelle = Classeur.Name;
             FeuilleActive = Classeur.Sheets[1];
-            DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, 2].End(XlDirection.xlUp).Row;
-            DerniereColonne = FeuilleActive.Cells[2, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
-            Donnees = FeuilleActive.Range["B2", ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
+            DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, _PremiereColonne].End(XlDirection.xlUp).Row;
+            DerniereColonne = FeuilleActive.Cells[_PremiereLigne-1, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
+            Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_PremiereColonne) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
             TrierFeuille(2);
             SupprimerDoublons();
         }
@@ -30,8 +36,8 @@ namespace BiGPay
             ActiverClasseur();
             DateTime? DateEntreeSortie = null;
             string dateEntreeSortieSplit = "";
-            string entreeSortie = Donnees.Cells[index, 0].Text;
-            string dateEntreeSortie = Donnees.Cells[index, 7].Text;
+            string entreeSortie = Donnees.Cells[index, _ColonneEntreeSortie-1].Text;
+            string datesEntreeSortie = Donnees.Cells[index, _ColonneDatesEntreeSortie-1].Text;
             Char delimiter = '-';
 
             if (entreeSortie != "")
@@ -39,20 +45,20 @@ namespace BiGPay
                 if (entreeSortie == "Le collaborateur a démarré ce mois")
                 {
                     //Extraction des caractères concernant la date d'entrée et initialisation de la variable à insérer
-                    dateEntreeSortieSplit = dateEntreeSortie.Split(delimiter)[0];
+                    dateEntreeSortieSplit = datesEntreeSortie.Split(delimiter)[0];
                     entreeSortie = "Entrée le " + dateEntreeSortieSplit;
                     DateEntreeSortie = Convert.ToDateTime(dateEntreeSortieSplit);
                 }
                 else if (entreeSortie == "Le collaborateur quitte ce mois-ci")
                 {
                     //Extraction des caractères concernant la date de sortie et initialisation de la variable à insérer
-                    if (dateEntreeSortie.Length > 10)
+                    if (datesEntreeSortie.Length > 10)
                     {
-                        dateEntreeSortieSplit = dateEntreeSortie.Split(delimiter)[1];
+                        dateEntreeSortieSplit = datesEntreeSortie.Split(delimiter)[1];
                     }
                     else
                     {
-                        dateEntreeSortieSplit = dateEntreeSortie;
+                        dateEntreeSortieSplit = datesEntreeSortie;
                     }
                     entreeSortie = "Sortie le " + dateEntreeSortieSplit;
                     DateEntreeSortie = Convert.ToDateTime(dateEntreeSortieSplit);

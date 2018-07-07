@@ -17,6 +17,8 @@ namespace BiGPay
         public Workbook Classeur { get; set; }
         public string Libelle { get; set; }
         public _Worksheet FeuilleActive { get; set; }
+        public const int _PremiereLigne = 2;
+        public const int _PremiereColonne = 1;
         public long DerniereLigne { get; set; }
         public long DerniereColonne { get; set; }
         public Range Donnees { get; set; }
@@ -24,6 +26,7 @@ namespace BiGPay
         public Range CelluleA1 { get; set; }
         public long LigneAcompleter { get; set; }
         public long LigneACopier { get; set; }
+
 
         public void OuvrirClasseur(string excelFile)
         {
