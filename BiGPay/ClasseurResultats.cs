@@ -7,7 +7,7 @@ using Microsoft.Office.Interop.Excel;
 
 namespace BiGPay
 {
-    class ClasseurResultats : ClasseurExcel
+    public class ClasseurResultats : ClasseurExcel
     {
         public const int _ColonneMatricules = 1;
         public const int _ColonneCollaborateurs = 2;
@@ -98,28 +98,8 @@ namespace BiGPay
                 celluleACompleter.Value = classeurCollaborateurs.ObtenirEntreesEtSortiesDuMois(index).ToString();
             }
         }
-
-        public void CreerPeriodePaie(ClasseurAbsences classeurAbsences)
-        {
-            if (DerniereLigne > 1)
-            {
-               //Réécriture de la première date d'absence
-               string premiereAbsence = classeurAbsences.FeuilleActive.Cells[ClasseurExcel._PremiereLigne +1, ClasseurAbsences._ColonneDepartAbsence].Text;
-               premiereAbsence = DateTime.ParseExact(
-                    premiereAbsence,
-                    Periode._Formats,
-                    CultureInfo.InvariantCulture,
-                    DateTimeStyles.None)
-                    .ToString("dd/MM/yyyy");
-                //Conversion de la date réécrite et initialisation dans sa variable
-                classeurAbsences.PremiereDateAbsence = Convert.ToDateTime(premiereAbsence);
-                Periode periode = new Periode(classeurAbsences.PremiereDateAbsence);
-                //Remplissage de la cellule concernant l'information du mois en cours dans le classeur paie
-                FeuilleActive.Range["B6"].Value = periode.DateDebutPeriode.ToString("MMMM yyyy");
-            }
-        }
-
-        public void RemplirAbsences(long ligneACompleter, int index, ClasseurAbsences classeurAbsences)
+        
+        public void RemplirAbsences(long ligneACompleter, int index, ClasseurAbsences classeurAbsences, Periode periode)
         {
             #region Variables
             string detailsAbsenceAvecTypeAbsence;
@@ -211,7 +191,61 @@ namespace BiGPay
                     }
                 }
             }
+            RemplirJoursTravaillesPeriode(ligneACompleter, index, periode);
             #endregion
+        }
+
+        public void RemplirJoursTravaillesPeriode(long ligneACompleter, int index, Periode periode)
+        {
+            Range celluleJoursOuvres = FeuilleActive.Cells[ligneACompleter, _ColonneJoursOuvres];
+            celluleJoursOuvres.Value = periode.NbJoursOuvresPeriode;
+
+            Decimal? totalCongesPayes = (Decimal?)FeuilleActive.Cells[ligneACompleter, _ColonneTotalCongesPayes].Value;
+            Decimal? totalCongesExceptionnels = (Decimal?)FeuilleActive.Cells[ligneACompleter, _ColonneTotalCongesExceptionnels].Value;
+            Decimal? totalRTT = (Decimal?)FeuilleActive.Cells[ligneACompleter, _ColonneTotalRTT].Value;
+            Decimal? totalMaladie = (Decimal?)FeuilleActive.Cells[ligneACompleter, _ColonneTotalMaladie].Value;
+            Decimal? totalFormation = (Decimal?)FeuilleActive.Cells[ligneACompleter, _ColonneTotalFormation].Value;
+
+            totalCongesPayes = ReecrireSiNull(totalCongesPayes);
+            totalCongesExceptionnels = ReecrireSiNull(totalCongesExceptionnels);
+            totalRTT = ReecrireSiNull(totalRTT);
+            totalMaladie = ReecrireSiNull(totalMaladie);
+            totalFormation = ReecrireSiNull(totalFormation);
+
+            Range celluleJoursTravailles = FeuilleActive.Cells[ligneACompleter, _ColonneJoursTravailles];
+            celluleJoursTravailles.Value = periode.NbJoursOuvresPeriode
+                                           - totalCongesPayes
+                                           - totalCongesExceptionnels
+                                           - totalRTT
+                                           - totalMaladie
+                                           - totalFormation;
+        }
+
+        public void RemplirJoursTravaillesPeriode(Periode periode)
+        {
+            for(int ligneACompleter = 8; ligneACompleter <= DerniereLigne; ligneACompleter++)
+            {
+                Range celluleJoursOuvres = FeuilleActive.Cells[ligneACompleter, _ColonneJoursOuvres];
+                Range celluleJoursTravailles = FeuilleActive.Cells[ligneACompleter, _ColonneJoursTravailles];
+                if (celluleJoursOuvres.Text == "")
+                {
+                    celluleJoursOuvres.Value = periode.NbJoursOuvresPeriode;
+                    celluleJoursTravailles.Value = celluleJoursOuvres.Value;
+                }
+            }
+            //Supression du remplissage sur la ligne d'en-tête
+            if (FeuilleActive.Cells[7, _ColonneJoursOuvres].Text == periode.NbJoursOuvresPeriode.ToString())
+            {
+                FeuilleActive.Cells[7, _ColonneJoursOuvres].Value = "";
+                FeuilleActive.Cells[7, _ColonneJoursTravailles].Value = "";
+            }
+        }
+
+        private Decimal? ReecrireSiNull(Decimal? valeurAVerifier)
+        {
+            if (valeurAVerifier == null)
+                return 0;
+            return valeurAVerifier;
         }
     }
 }

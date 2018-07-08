@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace BiGPay
 {
@@ -12,6 +13,7 @@ namespace BiGPay
                          HuitMai1945, JeudiDeLAscension, LundiDePentecote, 
                          FeteNationale, Assomption, Toussaint, Armistice, 
                          Noel;
+        public int NbJoursOuvresPeriode { get; set; }
         public static string[] _Formats = { "MM/dd/yyyy", "MMM-dd-yyyy", "yyyy-MM-dd", "MM-dd-yyyy", "MM-dd-yy", "M/d/yyyy", "MMM dd yyyy", "M/yyyy" };
         
         public Periode(DateTime datePremiereAbsenceEnregistree)
@@ -21,6 +23,28 @@ namespace BiGPay
             JoursFeries = RetournerTousLesJoursFeriesPourLaPeriode(datePremiereAbsenceEnregistree);
             //Jour de solidarite à ôter de la liste
             ExtraireJourDeSolidarite(JoursFeries, LundiDePentecote);
+            NbJoursOuvresPeriode = CalculerJoursOuvresPeriode(DateDebutPeriode, DateFinPeriode);
+        }
+
+        public static Periode _CreerPeriodePaie(ClasseurAbsences classeurAbsences)
+        {
+            if (classeurAbsences.DerniereLigne > 1)
+            {
+                //Réécriture de la première date d'absence
+                string premiereAbsence = classeurAbsences.FeuilleActive.Cells[ClasseurExcel._PremiereLigne + 1, ClasseurAbsences._ColonneDepartAbsence].Text;
+                premiereAbsence = DateTime.ParseExact(
+                     premiereAbsence,
+                     _Formats,
+                     CultureInfo.InvariantCulture,
+                     DateTimeStyles.None)
+                     .ToString("dd/MM/yyyy");
+                //Conversion de la date réécrite et initialisation dans sa variable
+                classeurAbsences.PremiereDateAbsence = Convert.ToDateTime(premiereAbsence);
+                Periode periode = new Periode(classeurAbsences.PremiereDateAbsence);
+
+                return periode;
+            }
+            return null;
         }
 
         public List<DateTime> RetournerTousLesJoursFeriesPourLaPeriode(DateTime datePremiereAbsenceEnregistree)
@@ -116,6 +140,25 @@ namespace BiGPay
         {
             if(liste.Contains(jourDeSolidarite))
                 liste.Remove(jourDeSolidarite);
+        }
+
+        private int CalculerJoursOuvresPeriode(DateTime dateDebutPeriode, DateTime dateFinPeriode)
+        {
+            int jours = 0;
+            while (dateDebutPeriode <= dateFinPeriode)
+            {
+                if (dateDebutPeriode.DayOfWeek != DayOfWeek.Saturday && dateDebutPeriode.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    jours++;
+                    foreach (DateTime jourFerie in JoursFeries)
+                    {
+                        if (jourFerie == dateDebutPeriode)
+                            jours--;
+                    }
+                }
+                dateDebutPeriode = dateDebutPeriode.AddDays(1);
+            }
+            return jours;
         }
     }
 }

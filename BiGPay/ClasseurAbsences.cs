@@ -6,7 +6,7 @@ using Microsoft.Office.Interop.Excel;
 
 namespace BiGPay
 {
-    class ClasseurAbsences : ClasseurExcel
+    public class ClasseurAbsences : ClasseurExcel
     {
         public DateTime PremiereDateAbsence { get; set; }
         public DateTime DateDepartAbsence {get; set;}

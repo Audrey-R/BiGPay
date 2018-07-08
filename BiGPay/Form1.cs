@@ -85,16 +85,20 @@ namespace BiGPay
 
                     #region Remplissage_Absences
                     //Remplissage de la partie liée aux absences dans le classeur de résultats
-                    classeurResultats.CreerPeriodePaie(classeurAbsences);
+                    Periode periode = Periode._CreerPeriodePaie(classeurAbsences);
+                    classeurResultats.FeuilleActive.Range["B6"].Value = periode.DateDebutPeriode.ToString("MMMM yyyy");
                     for (int index = 2; index <= classeurAbsences.DerniereLigne; index++)
                     {
                         //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
                         long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurAbsences, index);
                         if (ligneACompleter != 0)
                         {
-                            classeurResultats.RemplirAbsences(ligneACompleter, index, classeurAbsences); 
+                            classeurResultats.RemplirAbsences(ligneACompleter, index, classeurAbsences, periode);
                         }
                     }
+                    classeurResultats.RemplirJoursTravaillesPeriode(periode);
+                    //Fermeture du classeurCollaborateurs
+                    classeurAbsences.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
 
@@ -106,22 +110,23 @@ namespace BiGPay
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Periode periode = new Periode(DateTime.Now);
-            List<DateTime> liste = periode.RetournerTousLesJoursFeriesPourLaPeriode(DateTime.Now);
-            periode.ExtraireJourDeSolidarite(liste, periode.LundiDePentecote);
-            MessageBox.Show("Pâques    : " + liste.Contains(periode.LundiDePaques) + "\n" +
-                             "Ascension : " + liste.Contains(periode.JeudiDeLAscension) + "\n" +
-                             "Pentecôte : " + liste.Contains(periode.LundiDePentecote) + "\n" +
-                             "Jour de l'an : " + liste.Contains(periode.JourDeLAn) + "\n" +
-                             "Fete du travail : " + liste.Contains(periode.FeteDuTravail) + "\n" +
-                             "8 mai : " + liste.Contains(periode.HuitMai1945) + "\n" +
-                             "Fete nationale : " + liste.Contains(periode.FeteNationale) + "\n" +
-                             "Assomption : " + liste.Contains(periode.Assomption) + "\n" +
-                             "Toussait : " + liste.Contains(periode.Toussaint) + "\n" +
-                             "Armistice : " + liste.Contains(periode.Armistice) + "\n" +
-                             "Noel : " + liste.Contains(periode.Noel) + "\n" +
-                             "DateDebut : " + periode.DateDebutPeriode.ToLongDateString() + "\n" +
-                             "DateFin : " + periode.DateFinPeriode.ToLongDateString() + "\n");
+            Periode periode = new Periode(new DateTime(2018,12,1));
+            MessageBox.Show(periode.NbJoursOuvresPeriode.ToString());
+            //List<DateTime> liste = periode.RetournerTousLesJoursFeriesPourLaPeriode(DateTime.Now);
+            //periode.ExtraireJourDeSolidarite(liste, periode.LundiDePentecote);
+            //MessageBox.Show("Pâques    : " + liste.Contains(periode.LundiDePaques) + "\n" +
+            //                 "Ascension : " + liste.Contains(periode.JeudiDeLAscension) + "\n" +
+            //                 "Pentecôte : " + liste.Contains(periode.LundiDePentecote) + "\n" +
+            //                 "Jour de l'an : " + liste.Contains(periode.JourDeLAn) + "\n" +
+            //                 "Fete du travail : " + liste.Contains(periode.FeteDuTravail) + "\n" +
+            //                 "8 mai : " + liste.Contains(periode.HuitMai1945) + "\n" +
+            //                 "Fete nationale : " + liste.Contains(periode.FeteNationale) + "\n" +
+            //                 "Assomption : " + liste.Contains(periode.Assomption) + "\n" +
+            //                 "Toussait : " + liste.Contains(periode.Toussaint) + "\n" +
+            //                 "Armistice : " + liste.Contains(periode.Armistice) + "\n" +
+            //                 "Noel : " + liste.Contains(periode.Noel) + "\n" +
+            //                 "DateDebut : " + periode.DateDebutPeriode.ToLongDateString() + "\n" +
+            //                 "DateFin : " + periode.DateFinPeriode.ToLongDateString() + "\n");
         }
 
         
