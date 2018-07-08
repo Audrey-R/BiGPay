@@ -14,7 +14,6 @@ namespace BiGPay
         public const int _ColonneCollaborateurs = 2;
         public const int _ColonneMatricules = 3;
         public const int _ColonneDatesEntreeSortie = 8;
-        private new const int _PremiereColonne = 2;
 
         public ClasseurCollaborateurs() { }
         public ClasseurCollaborateurs(string libelleClasseur)
@@ -25,11 +24,11 @@ namespace BiGPay
             Classeur = ExcelApp.Workbooks.Open(libelleClasseur);
             Libelle = Classeur.Name;
             FeuilleActive = Classeur.Sheets[1];
-            DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, _PremiereColonne].End(XlDirection.xlUp).Row;
-            DerniereColonne = FeuilleActive.Cells[_PremiereLigne-1, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
-            Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_PremiereColonne) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
-            TrierFeuille(2);
-            SupprimerDoublons();
+            DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, _ColonneCollaborateurs].End(XlDirection.xlUp).Row;
+            DerniereColonne = FeuilleActive.Cells[_PremiereColonne, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
+            Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
+            TrierFeuille(FeuilleActive.Range[ConvertirColonneEnLettre(_PremiereColonne) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne],2);
+            SupprimerDoublons(Donnees);
         }
 
         public string ObtenirEntreesEtSortiesDuMois(int index)
@@ -37,8 +36,8 @@ namespace BiGPay
             ActiverClasseur();
             DateTime? DateEntreeSortie = null;
             string dateEntreeSortieSplit = "";
-            string entreeSortie = Donnees.Cells[index, _ColonneEntreeSortie-1].Text;
-            string datesEntreeSortie = Donnees.Cells[index, _ColonneDatesEntreeSortie-1].Text;
+            string entreeSortie = Donnees.Cells[index, _ColonneEntreeSortie].Text;
+            string datesEntreeSortie = Donnees.Cells[index, _ColonneDatesEntreeSortie].Text;
             Char delimiter = '-';
 
             if (entreeSortie != "")

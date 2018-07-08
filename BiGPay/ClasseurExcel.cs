@@ -17,7 +17,7 @@ namespace BiGPay
         public Workbook Classeur { get; set; }
         public string Libelle { get; set; }
         public _Worksheet FeuilleActive { get; set; }
-        public const int _PremiereLigne = 2;
+        public const int _PremiereLigne = 1;
         public const int _PremiereColonne = 1;
         public long DerniereLigne { get; set; }
         public long DerniereColonne { get; set; }
@@ -54,15 +54,27 @@ namespace BiGPay
             return lettre;
         }
 
-        public void TrierFeuille(int colonne)
+        public void TrierFeuille(Range plageDonnees, int colonne)
         {
-            Donnees.Sort(
-                FeuilleActive.Columns[colonne, Missing.Value], XlSortOrder.xlAscending);
+            plageDonnees.Sort(FeuilleActive.Columns[colonne, Type.Missing],
+                        XlSortOrder.xlAscending,
+                        Type.Missing, Type.Missing,
+                        XlSortOrder.xlAscending,
+                        Type.Missing,
+                        XlSortOrder.xlAscending,
+                        XlYesNoGuess.xlYes,
+                        Type.Missing,
+                        Type.Missing,
+                        XlSortOrientation.xlSortColumns,
+                        XlSortMethod.xlPinYin,
+                        XlSortDataOption.xlSortNormal,
+                        XlSortDataOption.xlSortNormal,
+                        XlSortDataOption.xlSortNormal); ;
         }
 
-        public void SupprimerDoublons()
+        public void SupprimerDoublons(Range plageDonnees)
         {
-            Donnees.RemoveDuplicates(XlYesNoGuess.xlYes);
+            plageDonnees.RemoveDuplicates(XlYesNoGuess.xlYes);
         }
 
         public void FermerTousLesProcessus()

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
 
 namespace BiGPay
@@ -15,11 +12,10 @@ namespace BiGPay
         public DateTime DateDepartAbsence {get; set;}
         public DateTime DateRetourAbsence { get; set; }
         public List<DateTime> JoursOuvresAbsence { get; set; } // NetworkDays(DateDepartAbsence, DateRetourAbsence, JoursFeries)
-        public const int _ColonneCollaborateurs = 5;
+        public const int _ColonneCollaborateurs = 3;
         public const int _ColonneTypeAbsence = 7;
         public const int _ColonneDepartAbsence = 8;
         public const int _ColonneRetourAbsence = 10;
-        public const int _ColonneNombreJoursAbsence = 12;
         public const int _ColonneDetailsAbsence = 13;
 
         public ClasseurAbsences() { }
@@ -31,18 +27,19 @@ namespace BiGPay
             Classeur = ExcelApp.Workbooks.Open(libelleClasseur);
             Libelle = Classeur.Name;
             FeuilleActive = Classeur.Sheets[1];
-            DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, _PremiereColonne].End(XlDirection.xlUp).Row;
-            DerniereColonne = FeuilleActive.Cells[_PremiereLigne-1, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
-            Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_PremiereColonne) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
+            DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, _ColonneCollaborateurs].End(XlDirection.xlUp).Row;
+            DerniereColonne = FeuilleActive.Cells[_PremiereColonne, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
+            Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
             CelluleA1 = FeuilleActive.get_Range("A1", Type.Missing);
-            TrierFeuille(4);
-            SupprimerDoublons();
+            TrierFeuille(FeuilleActive.Range[ConvertirColonneEnLettre(_PremiereColonne) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne],4);
+            SupprimerDoublons(FeuilleActive.Range[ConvertirColonneEnLettre(_PremiereColonne) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne]);
         }
 
-        public string ObtenirAbsence(string typeAbsenceRecherche, int index)
+        public string ObtenirAbsence(int index)
         {
+            ActiverClasseur();
             #region Variables
-            string nbAbsence = FeuilleActive.Cells[index, _ColonneNombreJoursAbsence].Text;
+            string nbAbsence;
             string typeAbsence = FeuilleActive.Cells[index, _ColonneTypeAbsence].Text;
             string departAbsence = FeuilleActive.Cells[index, _ColonneDepartAbsence].Text;
             string retourAbsence = FeuilleActive.Cells[index, _ColonneRetourAbsence].Text;
@@ -86,56 +83,33 @@ namespace BiGPay
 
             #region Traitement
             // Traitement
-            Decimal nbAbsenceDecimal = ObtenirNombreJourAbsence(typeAbsenceRecherche, index);
-            nbAbsence = nbAbsenceDecimal.ToString();
-
-            if (departAbsence != retourAbsence)
+            nbAbsence = ObtenirNombreJourAbsence(index);
+            if(nbAbsence != "")
             {
-                texteARetourner = nbAbsence + " du " + departAbsence + " au " + retourAbsence;
+                if (departAbsence != retourAbsence)
+                {
+                    texteARetourner = nbAbsence + " du " + departAbsence + " au " + retourAbsence + " (" + typeAbsence + ")";
+                }
+                else
+                {
+                    texteARetourner = nbAbsence + " le " + departAbsence + " (" + typeAbsence + ")";
+                }
             }
             else
             {
-                texteARetourner = nbAbsence + " le " + departAbsence;
+                texteARetourner = "";
             }
-
-            if (typeAbsenceRecherche == "Maladie")
-            {
-                if (typeAbsence == "Maladie non justifiée" ||
-                    typeAbsence == "Congé maternité" ||
-                    typeAbsence == "Enfant malade")
-                    return texteARetourner + " (" + typeAbsence + ")";
-                else if (typeAbsence == "Maladie")
-                    return texteARetourner;
-                return "";
-            }
-            else if (typeAbsenceRecherche == "Congés_Payés" && typeAbsence == "Congé payé")
-            {
-                return texteARetourner;
-            }
-            else if (typeAbsenceRecherche == "RTT" && typeAbsence == "RTT salarié" || typeAbsence == "RTT employeur")
-            {
-                return texteARetourner;
-            }
-            else if (typeAbsenceRecherche == "Récupération" && typeAbsence == "Récupération du temps de travail")
-            {
-                return texteARetourner;
-            }
-            else if (typeAbsenceRecherche == "Formation" && typeAbsence == "Formation")
-            {
-                return texteARetourner;
-            }
-            else
-            {
-                return "";
-            }
+            return texteARetourner;
             #endregion
         }
 
-        public decimal ObtenirNombreJourAbsence(string typeAbsenceRecherche, int index)
+        public string ObtenirNombreJourAbsence(int index)
         {
+            ActiverClasseur();
             #region Variables
             string detailsAbsence = FeuilleActive.Cells[index, _ColonneDetailsAbsence].Text;
             string typeAbsence = FeuilleActive.Cells[index, _ColonneTypeAbsence].Text;
+            //string nbAbsence;
             Periode periode = new Periode(PremiereDateAbsence);
             #endregion
 
@@ -149,7 +123,7 @@ namespace BiGPay
                 {
                     string partieGaucheChaine = detailsAbsence.Split('|')[0];
                     string partieDroiteChaine = detailsAbsence.Split('|')[1];
-                    
+
                     if (partieGaucheChaine.Contains(periode.DateDebutPeriode.Month.ToString()))
                     {
                         detailsAbsence = partieGaucheChaine;
@@ -161,42 +135,13 @@ namespace BiGPay
                 }
                 detailsAbsence = detailsAbsence.Split(':')[1];
                 detailsAbsence = detailsAbsence.Split('j')[0];
-                Decimal detailsAbsenceNbJours = Convert.ToDecimal(detailsAbsence);
-                #endregion
-
-            #region Traitement
-            if (typeAbsenceRecherche == "Maladie" &&
-                typeAbsence == "Maladie non justifiée" ||
-                typeAbsence == "Congé maternité" ||
-                typeAbsence == "Enfant malade" ||
-                typeAbsence == "Maladie")
-            {
-                return detailsAbsenceNbJours;
-            }
-            else if (typeAbsenceRecherche == "Congés_Payés" && typeAbsence == "Congé payé")
-            {
-                //AjouterLeNbAbsenceAuToTalDeLaColonne(nbAbsence, ClasseurResultats._ColonneCongesPayes);
-                return detailsAbsenceNbJours;
-            }
-            else if (typeAbsenceRecherche == "RTT" && typeAbsence == "RTT salarié" || typeAbsence == "RTT employeur")
-            {
-                return detailsAbsenceNbJours;
-            }
-            else if (typeAbsenceRecherche == "Récupération" && typeAbsence == "Récupération du temps de travail")
-            {
-                return detailsAbsenceNbJours;
-            }
-            else if (typeAbsenceRecherche == "Formation" && typeAbsence == "Formation")
-            {
-                return detailsAbsenceNbJours;
+                return detailsAbsence.Trim() ;
             }
             else
             {
-                return 0;
+                return "";
             }
-        }
-        return 0;
-        #endregion
+            #endregion
         }
     }
 }

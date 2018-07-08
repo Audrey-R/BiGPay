@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Office.Interop.Excel;
 
 namespace BiGPay
@@ -43,7 +41,7 @@ namespace BiGPay
 
         public void RemplirColonneCollaborateurs(ClasseurCollaborateurs classeurCollaborateurs)
         {
-            DerniereLigne = 5 + classeurCollaborateurs.DerniereLigne;
+            DerniereLigne = 6 + classeurCollaborateurs.DerniereLigne;
             FeuilleActive.Range[
                 ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, 
                 ConvertirColonneEnLettre(_ColonneCollaborateurs) + DerniereLigne
@@ -76,17 +74,18 @@ namespace BiGPay
             }
             int colonneCollaborateursSource = constantes[0];
             classeurSource.Collaborateur = classeurSource.Donnees.Cells[index, colonneCollaborateursSource -1];
-
             LigneAcompleter = 0;
-            
-            Collaborateur = FeuilleActive.Cells[_PremiereLigne, _ColonneCollaborateurs]
-                            .Find(classeurSource.Collaborateur.Text,
-                            Type.Missing, XlFindLookIn.xlValues, XlLookAt.xlPart, Type.Missing,
-                            XlSearchDirection.xlNext, Type.Missing, Type.Missing, Type.Missing
-                            );
-            if (Collaborateur.Text == classeurSource.Collaborateur.Text)
+            if (classeurSource.Collaborateur.Text != "Collaborateur")
             {
-                LigneAcompleter = Collaborateur.Row;
+                Collaborateur = FeuilleActive.Cells[_PremiereLigne, _ColonneCollaborateurs]
+                                .Find(classeurSource.Collaborateur.Text,
+                                Type.Missing, XlFindLookIn.xlValues, XlLookAt.xlPart, Type.Missing,
+                                XlSearchDirection.xlNext, Type.Missing, Type.Missing, Type.Missing
+                                );
+                if (Collaborateur.Text == classeurSource.Collaborateur.Text)
+                {
+                    LigneAcompleter = Collaborateur.Row;
+                }
             }
             return LigneAcompleter;
         }
@@ -105,7 +104,7 @@ namespace BiGPay
             if (DerniereLigne > 1)
             {
                //Réécriture de la première date d'absence
-               string premiereAbsence = classeurAbsences.FeuilleActive.Cells[ClasseurExcel._PremiereLigne, ClasseurAbsences._ColonneDepartAbsence].Text;
+               string premiereAbsence = classeurAbsences.FeuilleActive.Cells[ClasseurExcel._PremiereLigne +1, ClasseurAbsences._ColonneDepartAbsence].Text;
                premiereAbsence = DateTime.ParseExact(
                     premiereAbsence,
                     Periode._Formats,
@@ -120,40 +119,99 @@ namespace BiGPay
             }
         }
 
-        public void RemplirColonne(string typeAbsenceRecherche, int colonne, long ligneACompleter, int index, ClasseurAbsences classeurAbsences)
+        public void RemplirAbsences(long ligneACompleter, int index, ClasseurAbsences classeurAbsences)
         {
-            Range celluleACompleter = FeuilleActive.Cells[ligneACompleter, colonne];
-            if (classeurAbsences.ObtenirAbsence(typeAbsenceRecherche, index) != "")
-            { 
-                if (celluleACompleter.Text == "")
-                {
-                    celluleACompleter.Value = classeurAbsences.ObtenirAbsence(typeAbsenceRecherche, index);
-                }
-                else
-                {
-                    celluleACompleter.Value = celluleACompleter.Text + " et " + classeurAbsences.ObtenirAbsence(typeAbsenceRecherche, index);
-                }
-            }
-        }
-
-        public void RemplirTotalColonne(string typeAbsenceRecherche, int colonne, long ligneACompleter, int index, ClasseurAbsences classeurAbsences)
-        {
-            Range celluleACompleter = FeuilleActive.Cells[ligneACompleter, colonne];
+            #region Variables
+            string detailsAbsenceAvecTypeAbsence;
+            string detailsAbsenceSansTypeAbsence;
+            string typeAbsence;
+            string valeurAEcrire;
+            Range celluleACompleter;
+            Range celluleTotalACompleter;
             Decimal nbAbsence;
-            Decimal valeurCellule ;
-            if (classeurAbsences.ObtenirNombreJourAbsence(typeAbsenceRecherche, index) != 0)
+            Decimal valeurCelluleTotal;
+            #endregion
+
+            #region Traitement
+            if (classeurAbsences.ObtenirAbsence(index) != "")
             {
-                nbAbsence = classeurAbsences.ObtenirNombreJourAbsence(typeAbsenceRecherche, index);
-                if (celluleACompleter.Text == "")
+                // Extraction des chaines de caratères
+                detailsAbsenceAvecTypeAbsence = classeurAbsences.ObtenirAbsence(index).Trim();
+                typeAbsence = detailsAbsenceAvecTypeAbsence.Split('(')[1];
+                typeAbsence = typeAbsence.Split(')')[0];
+                detailsAbsenceSansTypeAbsence = detailsAbsenceAvecTypeAbsence.Split('(')[0].Trim();
+
+                if (typeAbsence != "Type")
                 {
-                    celluleACompleter.Value = nbAbsence;
-                }
-                else
-                {
-                    valeurCellule = (Decimal)celluleACompleter.Value;
-                    celluleACompleter.Value = Decimal.Add(valeurCellule, nbAbsence);
+                    /* Définition de la cellule à compléter selon le type d'absence retourné
+                   et de la valeur à écrire dans cette dernière */
+                    if (typeAbsence == "Congé payé")
+                    {
+                        celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneCongesPayes];
+                        valeurAEcrire = detailsAbsenceSansTypeAbsence;
+                        celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalCongesPayes];
+                    }
+                    else if (typeAbsence == "Maladie non justifiée" ||
+                        typeAbsence == "Congé maternité" ||
+                        typeAbsence == "Enfant malade" ||
+                        typeAbsence == "Maladie")
+                    {
+                        celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneMaladie];
+                        valeurAEcrire = detailsAbsenceAvecTypeAbsence;
+                        celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalMaladie];
+                    }
+                    else if (typeAbsence == "RTT salarié" || typeAbsence == "RTT employeur")
+                    {
+                        celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneRTT];
+                        valeurAEcrire = detailsAbsenceSansTypeAbsence;
+                        celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalRTT];
+                    }
+                    else if (typeAbsence == "Récupération du temps de travail")
+                    {
+                        celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneRecup];
+                        valeurAEcrire = detailsAbsenceSansTypeAbsence;
+                        celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalRecup];
+                    }
+                    else if (typeAbsence == "Formation")
+                    {
+                        celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneFormation];
+                        valeurAEcrire = detailsAbsenceSansTypeAbsence;
+                        celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalFormation];
+                    }
+                    else
+                    {
+                        celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneCongesExceptionnels];
+                        valeurAEcrire = detailsAbsenceAvecTypeAbsence;
+                        celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalCongesExceptionnels];
+                    }
+                    // Remplissage de la cellule selon si elle est vide ou non
+                    if (celluleACompleter.Text == "")
+                    {
+                        celluleACompleter.Value = valeurAEcrire;
+                    }
+                    else
+                    {
+                        celluleACompleter.Value = celluleACompleter.Text + " et " + valeurAEcrire;
+                    }
+
+                    // Remplissage de la cellule du total
+                    if (classeurAbsences.ObtenirNombreJourAbsence(index) != "")
+                    {
+                        valeurAEcrire = classeurAbsences.ObtenirNombreJourAbsence(index);
+                        nbAbsence = Convert.ToDecimal(valeurAEcrire);
+                        if (celluleTotalACompleter.Text == "")
+                        {
+                            celluleTotalACompleter.Value = nbAbsence;
+                        }
+                        else
+                        {
+                            valeurCelluleTotal = (Decimal)celluleTotalACompleter.Value;
+                            celluleTotalACompleter.Value = Decimal.Add(valeurCelluleTotal, nbAbsence);
+                        }
+                    }
                 }
             }
+            #endregion
         }
     }
 }
