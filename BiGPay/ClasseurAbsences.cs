@@ -110,7 +110,6 @@ namespace BiGPay
             }
             else if (typeAbsenceRecherche == "Congés_Payés" && typeAbsence == "Congé payé")
             {
-                //AjouterLeNbAbsenceAuToTalDeLaColonne(nbAbsence, ClasseurResultats._ColonneCongesPayes);
                 return texteARetourner;
             }
             else if (typeAbsenceRecherche == "RTT" && typeAbsence == "RTT salarié" || typeAbsence == "RTT employeur")
@@ -135,10 +134,6 @@ namespace BiGPay
         public decimal ObtenirNombreJourAbsence(string typeAbsenceRecherche, int index)
         {
             #region Variables
-            int indexDepart;
-            int indexFin;
-            string finChaineARechercherDansColonneDetails = "jour(s)";
-            int longueurCoupureDeChaine;
             string detailsAbsence = FeuilleActive.Cells[index, _ColonneDetailsAbsence].Text;
             string typeAbsence = FeuilleActive.Cells[index, _ColonneTypeAbsence].Text;
             Periode periode = new Periode(PremiereDateAbsence);
@@ -152,80 +147,56 @@ namespace BiGPay
                 //Traitement des absences qui chevauchent deux périodes
                 if (detailsAbsence.Contains("|"))
                 {
-                    string partieGaucheChaine = detailsAbsence.Substring(1, detailsAbsence.IndexOf("|") - 2);
-                    string partieDroiteChaine = detailsAbsence.Substring(detailsAbsence.IndexOf("|") + 2, detailsAbsence.IndexOf(detailsAbsence.Substring(detailsAbsence.Length - 1)) + 1);
-                    if (partieDroiteChaine.Substring(partieDroiteChaine.Length - 1, 1) == "(")
-                        partieDroiteChaine = detailsAbsence.Substring(detailsAbsence.IndexOf("|") + 2, detailsAbsence.IndexOf(detailsAbsence.Substring(detailsAbsence.Length - 1)) + 3);
-
+                    string partieGaucheChaine = detailsAbsence.Split('|')[0];
+                    string partieDroiteChaine = detailsAbsence.Split('|')[1];
+                    
                     if (partieGaucheChaine.Contains(periode.DateDebutPeriode.Month.ToString()))
                     {
-
-                        indexDepart = partieGaucheChaine.IndexOf(":") + 2;
-                        indexFin = partieGaucheChaine.IndexOf(finChaineARechercherDansColonneDetails);
-                        longueurCoupureDeChaine = indexFin - indexDepart - 1;
-                        detailsAbsence = partieGaucheChaine.Substring(indexDepart, longueurCoupureDeChaine);
+                        detailsAbsence = partieGaucheChaine;
                     }
                     else if (partieDroiteChaine.Contains(periode.DateDebutPeriode.Month.ToString()))
                     {
-                        indexDepart = partieDroiteChaine.IndexOf(":") + 2;
-                        indexFin = partieDroiteChaine.IndexOf(finChaineARechercherDansColonneDetails);
-                        longueurCoupureDeChaine = indexFin - indexDepart - 1;
-                        detailsAbsence = partieDroiteChaine.Substring(indexDepart, longueurCoupureDeChaine);
+                        detailsAbsence = partieDroiteChaine;
                     }
                 }
-                else
-                {
-                    indexDepart = detailsAbsence.IndexOf((periode.DateDebutPeriode.Month).ToString());
-                    indexFin = detailsAbsence.IndexOf(detailsAbsence.Substring(detailsAbsence.Length - 8));
-                    longueurCoupureDeChaine = indexFin - 10;
-                    if (detailsAbsence.Substring(10, longueurCoupureDeChaine) == "")
-                    {
-                        indexDepart = 1;
-                        //indexFin = indexFin - 1;
-                        longueurCoupureDeChaine = indexFin - 9;
-                        detailsAbsence = detailsAbsence.Substring(9, longueurCoupureDeChaine);
-                    }
-                    else
-                    {
-                        detailsAbsence = detailsAbsence.Substring(10, longueurCoupureDeChaine);
-                    }
-                }
+                detailsAbsence = detailsAbsence.Split(':')[1];
+                detailsAbsence = detailsAbsence.Split('j')[0];
                 Decimal detailsAbsenceNbJours = Convert.ToDecimal(detailsAbsence);
                 #endregion
 
             #region Traitement
-                if (typeAbsenceRecherche == "Maladie" &&
-                    typeAbsence == "Maladie non justifiée" ||
-                    typeAbsence == "Congé maternité" ||
-                    typeAbsence == "Enfant malade" ||
-                    typeAbsence == "Maladie")
-                {
-                    return detailsAbsenceNbJours;
-                }
-                else if (typeAbsenceRecherche == "Congés_Payés" && typeAbsence == "Congé payé")
-                {
-                    //AjouterLeNbAbsenceAuToTalDeLaColonne(nbAbsence, ClasseurResultats._ColonneCongesPayes);
-                    return detailsAbsenceNbJours;
-                }
-                else if (typeAbsenceRecherche == "RTT" && typeAbsence == "RTT salarié" || typeAbsence == "RTT employeur")
-                {
-                    return detailsAbsenceNbJours;
-                }
-                else if (typeAbsenceRecherche == "Récupération" && typeAbsence == "Récupération du temps de travail")
-                {
-                    return detailsAbsenceNbJours;
-                }
-                else if (typeAbsenceRecherche == "Formation" && typeAbsence == "Formation")
-                {
-                    return detailsAbsenceNbJours;
-                }
-                else
-                {
-                    return 0;
-                }
+            if (typeAbsenceRecherche == "Maladie" &&
+                typeAbsence == "Maladie non justifiée" ||
+                typeAbsence == "Congé maternité" ||
+                typeAbsence == "Enfant malade" ||
+                typeAbsence == "Maladie")
+            {
+                return detailsAbsenceNbJours;
             }
-            return 0;
-            #endregion
+            else if (typeAbsenceRecherche == "Congés_Payés" && typeAbsence == "Congé payé")
+            {
+                //AjouterLeNbAbsenceAuToTalDeLaColonne(nbAbsence, ClasseurResultats._ColonneCongesPayes);
+                return detailsAbsenceNbJours;
+            }
+            else if (typeAbsenceRecherche == "RTT" && typeAbsence == "RTT salarié" || typeAbsence == "RTT employeur")
+            {
+                return detailsAbsenceNbJours;
+            }
+            else if (typeAbsenceRecherche == "Récupération" && typeAbsence == "Récupération du temps de travail")
+            {
+                return detailsAbsenceNbJours;
+            }
+            else if (typeAbsenceRecherche == "Formation" && typeAbsence == "Formation")
+            {
+                return detailsAbsenceNbJours;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        return 0;
+        #endregion
         }
     }
 }
