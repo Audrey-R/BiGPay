@@ -9,6 +9,7 @@ namespace BiGPay
 {
     public class ClasseurResultats : ClasseurExcel
     {
+        public new const int _PremiereLigne = 7;
         public const int _ColonneMatricules = 1;
         public const int _ColonneCollaborateurs = 2;
         public const int _ColonneEntreesSorties = 3;
@@ -26,7 +27,19 @@ namespace BiGPay
         public const int _ColonneFormation = 16;
         public const int _ColonneTotalMaladie = 17;
         public const int _ColonneMaladie = 18;
-        public new const int _PremiereLigne = 7;
+        public const int _ColonneTotalHeureSup_Sem_8_20 = 22;
+        public const int _ColonneHeureSup_Sem_8_20 = 23;
+        public const int _ColonneTotalHeureSup_Sem_20_8 = 24;
+        public const int _ColonneHeureSup_Sem_20_8 = 25;
+        public const int _ColonneTotalHeureSup_Sam_8_20 = 26;
+        public const int _ColonneHeureSup_Sam_8_20 = 27;
+        public const int _ColonneTotalHeureSup_Sam_20_8 = 28;
+        public const int _ColonneHeureSup_Sam_20_8 = 29;
+        public const int _ColonneTotalHeureSup_DF_8_20 = 30;
+        public const int _ColonneHeureSup_DF_8_20 = 31;
+        public const int _ColonneTotalHeureSup_DF_20_8 = 32;
+        public const int _ColonneHeureSup_DF_20_8 = 33;
+
 
         public ClasseurResultats()
         {
@@ -73,7 +86,9 @@ namespace BiGPay
                 constantes.Add(Convert.ToInt32(field.GetRawConstantValue()));
             }
             int colonneCollaborateursSource = constantes[0];
-            classeurSource.Collaborateur = classeurSource.Donnees.Cells[index, colonneCollaborateursSource -1];
+            if (colonneCollaborateursSource - 1 > 0)
+                colonneCollaborateursSource = colonneCollaborateursSource - 1;
+            classeurSource.Collaborateur = classeurSource.Donnees.Cells[index, colonneCollaborateursSource];
             LigneAcompleter = 0;
             if (classeurSource.Collaborateur.Text != "Collaborateur")
             {
@@ -239,6 +254,95 @@ namespace BiGPay
                 FeuilleActive.Cells[7, _ColonneJoursOuvres].Value = "";
                 FeuilleActive.Cells[7, _ColonneJoursTravailles].Value = "";
             }
+        }
+
+        public void RemplirHeuresSupplementaires(long ligneACompleter, int index, ClasseurHeuresSup classeurHeuresSup, Periode periode)
+        {
+            #region Variables
+            string heureSupAvecDestination;
+            string destination ="";
+            string heureSupSansDestination ="";
+            string valeurAEcrire = "";
+            Range celluleACompleter;
+            Range celluleTotalACompleter;
+            Decimal nbHeures;
+            Decimal valeurCelluleTotal;
+            #endregion
+
+            #region Traitement
+            // Extraction des chaines de caratères
+            heureSupAvecDestination = classeurHeuresSup.ObtenirHeuresSupplementaires(index, periode).Trim();
+            if(heureSupAvecDestination != "Erreur")
+            {
+                destination = heureSupAvecDestination.Split('|')[0];
+                heureSupSansDestination = heureSupAvecDestination.Split('|')[1].Trim();
+                valeurAEcrire = heureSupSansDestination;
+            }
+            // Définition de la cellule à compléter selon le type d'heures supplémentaires retourné
+            if (destination == "Sem-8-20")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sem_8_20];
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sem_8_20];
+            }
+            else if (destination == "Sem-20-8")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sem_20_8];
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sem_20_8];
+            }
+            else if (destination == "Sam-8-20")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sam_8_20];
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sam_8_20];
+            }
+            else if (destination == "Sam-20-8")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sam_20_8];
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sam_20_8];
+            }
+            else if (destination == "DF-8-20")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_DF_8_20];
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_DF_8_20];
+            }
+            else if (destination == "DF-20-8")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_DF_20_8];
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_DF_20_8];
+            }
+            else
+            {
+                celluleACompleter = null;
+                valeurAEcrire = "";
+                celluleTotalACompleter = null;
+            }
+
+            // Remplissage de la cellule selon si elle est vide ou non
+            if (celluleACompleter != null && celluleACompleter.Text == "")
+            {
+                celluleACompleter.Value = valeurAEcrire;
+            }
+            else
+            {
+                celluleACompleter.Value = celluleACompleter.Text + " et " + valeurAEcrire;
+            }
+
+            // Remplissage de la cellule du total
+            if (classeurHeuresSup.ObtenirNombreHeuresSupplementaires(index) != 0)
+            {
+                nbHeures = classeurHeuresSup.ObtenirNombreHeuresSupplementaires(index);
+                if (celluleTotalACompleter.Text == "")
+                {
+                    celluleTotalACompleter.Value = nbHeures;
+                }
+                else
+                {
+                    valeurCelluleTotal = (Decimal)celluleTotalACompleter.Value;
+                    celluleTotalACompleter.Value = Decimal.Add(valeurCelluleTotal, nbHeures);
+                }
+            }
+
+
+            #endregion
         }
 
         private Decimal? ReecrireSiNull(Decimal? valeurAVerifier)

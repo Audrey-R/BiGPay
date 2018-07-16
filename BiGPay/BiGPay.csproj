@@ -48,6 +48,7 @@
     <Compile Include="ClasseurAbsences.cs" />
     <Compile Include="ClasseurCollaborateurs.cs" />
     <Compile Include="ClasseurExcel.cs" />
+    <Compile Include="ClasseurHeuresSup.cs" />
     <Compile Include="ClasseurResultats.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

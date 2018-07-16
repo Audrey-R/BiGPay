@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.Office.Interop.Excel;
 
 namespace BiGPay
 {
@@ -22,6 +14,7 @@ namespace BiGPay
         {
             if (SelectDossier.ShowDialog() == DialogResult.OK)
             {
+                #region Parcours du dossier et Vérification de la présence des fichiers
                 //Chemins du dossier de fichiers d'extractions
                 string cheminDossier = SelectDossier.SelectedPath;
                 //Variables de vérification de présence des classeurs à parcourir
@@ -54,6 +47,9 @@ namespace BiGPay
                 {
                     MessageBox.Show("Vérifiez les noms donnés à vos classeurs, un ou plusieurs sont manquants.");
                 }
+                #endregion
+
+                #region Traitement
                 else
                 {
                     #region Initialisation_Classeurs
@@ -62,7 +58,7 @@ namespace BiGPay
                     ClasseurCollaborateurs classeurCollaborateurs = new ClasseurCollaborateurs(cheminDossier + @"\Collaborateurs.xlsx");
                     ClasseurAbsences classeurAbsences = new ClasseurAbsences(cheminDossier + @"\Absences.xlsx");
                     //ClasseurExcel classeurAstreintes = new ClasseurExcel(cheminDossier + @"\Astreintes.xlsx");
-                    //ClasseurExcel classeurHeuresSup = new ClasseurExcel(cheminDossier + @"\Heures_sup.xlsx");
+                    ClasseurHeuresSup classeurHeuresSup = new ClasseurHeuresSup(cheminDossier + @"\Heures_sup.xlsx");
                     //ClasseurExcel classeurWeekEndFeries = new ClasseurExcel(cheminDossier + @"\Weekend_Feries.xlsx");
                     #endregion
 
@@ -83,32 +79,51 @@ namespace BiGPay
                     classeurCollaborateurs.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
-                    #region Remplissage_Absences
-                    //Remplissage de la partie liée aux absences dans le classeur de résultats
+                    //#region Remplissage_Absences
+                    ////Remplissage de la partie liée aux absences dans le classeur de résultats
                     Periode periode = Periode._CreerPeriodePaie(classeurAbsences);
-                    classeurResultats.FeuilleActive.Range["B6"].Value = periode.DateDebutPeriode.ToString("MMMM yyyy");
-                    for (int index = 2; index <= classeurAbsences.DerniereLigne; index++)
+                    //classeurResultats.FeuilleActive.Range["B6"].Value = periode.DateDebutPeriode.ToString("MMMM yyyy");
+                    //for (int index = 2; index <= classeurAbsences.DerniereLigne; index++)
+                    //{
+                    //    //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
+                    //    long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurAbsences, index);
+                    //    if (ligneACompleter != 0)
+                    //    {
+                    //        classeurResultats.RemplirAbsences(ligneACompleter, index, classeurAbsences, periode);
+                    //    }
+                    //}
+                    //classeurResultats.RemplirJoursTravaillesPeriode(periode);
+                    ////Fermeture du classeurCollaborateurs
+                    //classeurAbsences.Classeur.Close(false, Type.Missing, Type.Missing);
+                    //#endregion
+
+                    #region Remplissage des Heures supplémentaires
+                    for (int index = 2; index <= classeurHeuresSup.DerniereLigne; index++)
                     {
                         //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
-                        long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurAbsences, index);
+                        long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurHeuresSup, index);
                         if (ligneACompleter != 0)
                         {
-                            classeurResultats.RemplirAbsences(ligneACompleter, index, classeurAbsences, periode);
+                            classeurResultats.RemplirHeuresSupplementaires(ligneACompleter,index, classeurHeuresSup, periode);
                         }
                     }
-                    classeurResultats.RemplirJoursTravaillesPeriode(periode);
-                    //Fermeture du classeurCollaborateurs
-                    classeurAbsences.Classeur.Close(false, Type.Missing, Type.Missing);
+                   
                     #endregion
 
+                    #region Remplissage des astreintes
+                    #endregion
+
+                    #region Traitement de CRA pdf pour remplissage tickets asteinte
+                    #endregion
 
                     //Fermeture du formulaire
                     Close();
                 }
+                #endregion
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1_Click(object sender, EventArgs e)
         {
             Periode periode = new Periode(new DateTime(2018,12,1));
             MessageBox.Show(periode.NbJoursOuvresPeriode.ToString());
