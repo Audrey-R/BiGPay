@@ -27,6 +27,7 @@ namespace BiGPay
         public const int _ColonneFormation = 16;
         public const int _ColonneTotalMaladie = 17;
         public const int _ColonneMaladie = 18;
+        public const int _ColonneCodeAstreinte = 20;
         public const int _ColonneTotalHeureSup_Sem_8_20 = 22;
         public const int _ColonneHeureSup_Sem_8_20 = 23;
         public const int _ColonneTotalHeureSup_Sem_20_8 = 24;
@@ -343,6 +344,12 @@ namespace BiGPay
 
 
             #endregion
+        }
+
+        public void RemplirCodesAstreintes(long ligneACompleter, int index, ClasseurAstreintes classeurAstreintes)
+        {
+            Range celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneCodeAstreinte];
+            celluleACompleter.Value = classeurAstreintes.ObtenirCodeAstreinte(index);
         }
 
         private Decimal? ReecrireSiNull(Decimal? valeurAVerifier)

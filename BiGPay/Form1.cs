@@ -57,8 +57,9 @@ namespace BiGPay
                     ClasseurResultats classeurResultats = new ClasseurResultats();
                     ClasseurCollaborateurs classeurCollaborateurs = new ClasseurCollaborateurs(cheminDossier + @"\Collaborateurs.xlsx");
                     ClasseurAbsences classeurAbsences = new ClasseurAbsences(cheminDossier + @"\Absences.xlsx");
-                    //ClasseurExcel classeurAstreintes = new ClasseurExcel(cheminDossier + @"\Astreintes.xlsx");
                     ClasseurHeuresSup classeurHeuresSup = new ClasseurHeuresSup(cheminDossier + @"\Heures_sup.xlsx");
+                    ClasseurAstreintes classeurAstreintes = new ClasseurAstreintes(cheminDossier + @"\Astreintes.xlsx");
+
                     //ClasseurExcel classeurWeekEndFeries = new ClasseurExcel(cheminDossier + @"\Weekend_Feries.xlsx");
                     #endregion
 
@@ -79,7 +80,7 @@ namespace BiGPay
                     classeurCollaborateurs.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
-                    //#region Remplissage_Absences
+                    #region Remplissage_Absences
                     ////Remplissage de la partie liée aux absences dans le classeur de résultats
                     Periode periode = Periode._CreerPeriodePaie(classeurAbsences);
                     //classeurResultats.FeuilleActive.Range["B6"].Value = periode.DateDebutPeriode.ToString("MMMM yyyy");
@@ -95,9 +96,10 @@ namespace BiGPay
                     //classeurResultats.RemplirJoursTravaillesPeriode(periode);
                     ////Fermeture du classeurCollaborateurs
                     //classeurAbsences.Classeur.Close(false, Type.Missing, Type.Missing);
-                    //#endregion
+                    #endregion
 
                     #region Remplissage des Heures supplémentaires
+                    ////Remplissage de la partie liée aux heures supplémentaires dans le classeur de résultats
                     for (int index = 2; index <= classeurHeuresSup.DerniereLigne; index++)
                     {
                         //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
@@ -107,10 +109,20 @@ namespace BiGPay
                             classeurResultats.RemplirHeuresSupplementaires(ligneACompleter,index, classeurHeuresSup, periode);
                         }
                     }
-                   
+
                     #endregion
 
                     #region Remplissage des astreintes
+                    ////Remplissage de la partie liée aux codes d'astreintes dans le classeur de résultats
+                    for (int index = 2; index <= classeurAstreintes.DerniereLigne; index++)
+                    {
+                        //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
+                        long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurAstreintes, index);
+                        if (ligneACompleter != 0)
+                        {
+                            classeurResultats.RemplirCodesAstreintes(ligneACompleter, index, classeurAstreintes);
+                        }
+                    }
                     #endregion
 
                     #region Traitement de CRA pdf pour remplissage tickets asteinte

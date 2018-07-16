@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClasseurAbsences.cs" />
+    <Compile Include="ClasseurAstreintes.cs" />
     <Compile Include="ClasseurCollaborateurs.cs" />
     <Compile Include="ClasseurExcel.cs" />
     <Compile Include="ClasseurHeuresSup.cs" />
