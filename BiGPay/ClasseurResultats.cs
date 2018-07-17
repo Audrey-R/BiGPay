@@ -45,7 +45,7 @@ namespace BiGPay
         public ClasseurResultats()
         {
             ExcelApp = new Application();
-            ExcelApp.Application.DisplayAlerts = true;
+            ExcelApp.Application.DisplayAlerts = false;
             ExcelApp.Visible = true;
             Classeur = ExcelApp.Workbooks.Add();
             Libelle = Classeur.Name;
@@ -109,7 +109,7 @@ namespace BiGPay
         public void RemplirColonneEntreesSorties(long ligneACompleter, int index, ClasseurCollaborateurs classeurCollaborateurs)
         {
             Range celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneEntreesSorties];
-            if(classeurCollaborateurs.ObtenirEntreesEtSortiesDuMois(index) != null)
+            if(classeurCollaborateurs.ObtenirEntreesEtSortiesDuMois(index) != "")
             {
                 celluleACompleter.Value = classeurCollaborateurs.ObtenirEntreesEtSortiesDuMois(index).ToString();
             }
@@ -280,43 +280,10 @@ namespace BiGPay
                 valeurAEcrire = heureSupSansDestination;
             }
             // Définition de la cellule à compléter selon le type d'heures supplémentaires retourné
-            if (destination == "Sem-8-20")
-            {
-                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sem_8_20];
-                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sem_8_20];
-            }
-            else if (destination == "Sem-20-8")
-            {
-                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sem_20_8];
-                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sem_20_8];
-            }
-            else if (destination == "Sam-8-20")
-            {
-                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sam_8_20];
-                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sam_8_20];
-            }
-            else if (destination == "Sam-20-8")
-            {
-                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sam_20_8];
-                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sam_20_8];
-            }
-            else if (destination == "DF-8-20")
-            {
-                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_DF_8_20];
-                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_DF_8_20];
-            }
-            else if (destination == "DF-20-8")
-            {
-                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_DF_20_8];
-                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_DF_20_8];
-            }
-            else
-            {
-                celluleACompleter = null;
-                valeurAEcrire = "";
-                celluleTotalACompleter = null;
-            }
-
+            celluleACompleter = DefinitionDeLaCelluleACompleter(destination, ligneACompleter);
+            // Définition de la cellule Total à compléter selon le type d'heures supplémentaires retourné
+            celluleTotalACompleter = DefinitionDeLaCelluleTotalACompleter(destination, ligneACompleter);
+            
             // Remplissage de la cellule selon si elle est vide ou non
             if (celluleACompleter != null && celluleACompleter.Text == "")
             {
@@ -341,15 +308,140 @@ namespace BiGPay
                     celluleTotalACompleter.Value = Decimal.Add(valeurCelluleTotal, nbHeures);
                 }
             }
-
-
             #endregion
+        }
+
+        private Range DefinitionDeLaCelluleACompleter(string destination, long ligneACompleter)
+        {
+            Range celluleACompleter;
+            // Définition de la cellule à compléter selon le type d'heures supplémentaires retourné
+            if (destination == "Sem-8-20")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sem_8_20];
+             }
+            else if (destination == "Sem-20-8")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sem_20_8];
+            }
+            else if (destination == "Sam-8-20")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sam_8_20];
+            }
+            else if (destination == "Sam-20-8")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sam_20_8];
+            }
+            else if (destination == "DF-8-20")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_DF_8_20];
+           }
+            else if (destination == "DF-20-8")
+            {
+                celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_DF_20_8];
+            }
+            else
+            {
+                celluleACompleter = null;
+            }
+            return celluleACompleter;
+        }
+
+        private Range DefinitionDeLaCelluleTotalACompleter(string destination, long ligneACompleter)
+        {
+            Range celluleTotalACompleter;
+            if (destination == "Sem-8-20")
+            {
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sem_8_20];
+            }
+            else if (destination == "Sem-20-8")
+            {
+               celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sem_20_8];
+            }
+            else if (destination == "Sam-8-20")
+            {
+               celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sam_8_20];
+            }
+            else if (destination == "Sam-20-8")
+            {
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sam_20_8];
+            }
+            else if (destination == "DF-8-20")
+            {
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_DF_8_20];
+            }
+            else if (destination == "DF-20-8")
+            {
+                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_DF_20_8];
+            }
+            else
+            {
+                celluleTotalACompleter = null;
+            }
+            return celluleTotalACompleter;
         }
 
         public void RemplirCodesAstreintes(long ligneACompleter, int index, ClasseurAstreintes classeurAstreintes)
         {
             Range celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneCodeAstreinte];
             celluleACompleter.Value = classeurAstreintes.ObtenirCodeAstreinte(index);
+        }
+
+        public void RemplirTicketsAstreintes(Ticket ticket, long ligneACompleter, ClasseurPdf classeurPdf, Periode periode)
+        {
+            #region Variables
+            string heureSupAvecDestination;
+            string destination = "";
+            string heureSupSansDestination = "";
+            string valeurAEcrire = "";
+            Range celluleACompleter;
+            Range celluleTotalACompleter;
+            Decimal nbHeures;
+            Decimal valeurCelluleTotal;
+            #endregion
+
+            #region Traitement
+            // Extraction des chaines de caratères
+            heureSupAvecDestination = classeurPdf.ObtenirHeuresSupplementairesTicket(ticket, periode).Trim();
+            if (heureSupAvecDestination != "Erreur")
+            {
+                destination = heureSupAvecDestination.Split('|')[0];
+                heureSupSansDestination = heureSupAvecDestination.Split('|')[1].Trim();
+                valeurAEcrire = heureSupSansDestination;
+            }
+            // Définition de la cellule à compléter selon le type d'heures supplémentaires retourné
+            celluleACompleter = DefinitionDeLaCelluleACompleter(destination, ligneACompleter);
+            // Définition de la cellule Total à compléter selon le type d'heures supplémentaires retourné
+            celluleTotalACompleter = DefinitionDeLaCelluleTotalACompleter(destination, ligneACompleter);
+
+            // Remplissage de la cellule selon si elle est vide ou non
+            if (celluleACompleter != null && celluleACompleter.Text == "")
+            {
+                celluleACompleter.Value = valeurAEcrire;
+            }
+            else
+            {
+                celluleACompleter.Value = celluleACompleter.Text + " et " + valeurAEcrire;
+            }
+
+            // Remplissage de la cellule du total
+            if (ticket.NbHeures != 0)
+            {
+                string nbheures = ticket.NbHeures.ToString("0.0");
+                if (nbheures.Split(',')[1] == "0")
+                    nbheures = ticket.NbHeures.ToString("0");
+
+                nbHeures = Convert.ToDecimal(nbheures);
+                if (celluleTotalACompleter.Text == "")
+                {
+                    celluleTotalACompleter.Value = nbHeures;
+                }
+                else
+                {
+                    valeurCelluleTotal = (Decimal)celluleTotalACompleter.Value;
+                    celluleTotalACompleter.Value = Decimal.Add(valeurCelluleTotal, nbHeures);
+                }
+            }
+            #endregion
         }
 
         private Decimal? ReecrireSiNull(Decimal? valeurAVerifier)

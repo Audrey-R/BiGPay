@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
+using Microsoft.Office.Interop.Excel;
+using PdfConverterLibrary;
 
 namespace BiGPay
 {
@@ -23,7 +25,6 @@ namespace BiGPay
                 bool astreintes = false;
                 bool heuresSup = false;
                 bool weekEndferies= false;
-
                 foreach (string fichier in System.IO.Directory.GetFiles(cheminDossier))
                 {
                     if (System.IO.Path.GetExtension(fichier) == ".xlsx")
@@ -59,7 +60,7 @@ namespace BiGPay
                     ClasseurAbsences classeurAbsences = new ClasseurAbsences(cheminDossier + @"\Absences.xlsx");
                     ClasseurHeuresSup classeurHeuresSup = new ClasseurHeuresSup(cheminDossier + @"\Heures_sup.xlsx");
                     ClasseurAstreintes classeurAstreintes = new ClasseurAstreintes(cheminDossier + @"\Astreintes.xlsx");
-
+                    classeurResultats.ExcelApp.Visible = true;
                     //ClasseurExcel classeurWeekEndFeries = new ClasseurExcel(cheminDossier + @"\Weekend_Feries.xlsx");
                     #endregion
 
@@ -71,7 +72,7 @@ namespace BiGPay
                     {
                         //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
                         long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurCollaborateurs, index);
-                        if(ligneACompleter != 0)
+                        if(ligneACompleter > 0)
                         {
                             classeurResultats.RemplirColonneEntreesSorties(ligneACompleter, index, classeurCollaborateurs);
                         }
@@ -83,19 +84,19 @@ namespace BiGPay
                     #region Remplissage_Absences
                     ////Remplissage de la partie liée aux absences dans le classeur de résultats
                     Periode periode = Periode._CreerPeriodePaie(classeurAbsences);
-                    //classeurResultats.FeuilleActive.Range["B6"].Value = periode.DateDebutPeriode.ToString("MMMM yyyy");
-                    //for (int index = 2; index <= classeurAbsences.DerniereLigne; index++)
-                    //{
-                    //    //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
-                    //    long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurAbsences, index);
-                    //    if (ligneACompleter != 0)
-                    //    {
-                    //        classeurResultats.RemplirAbsences(ligneACompleter, index, classeurAbsences, periode);
-                    //    }
-                    //}
-                    //classeurResultats.RemplirJoursTravaillesPeriode(periode);
-                    ////Fermeture du classeurCollaborateurs
-                    //classeurAbsences.Classeur.Close(false, Type.Missing, Type.Missing);
+                    classeurResultats.FeuilleActive.Range["B6"].Value = periode.DateDebutPeriode.ToString("MMMM yyyy");
+                    for (int index = 2; index <= classeurAbsences.DerniereLigne; index++)
+                    {
+                        //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
+                        long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurAbsences, index);
+                        if (ligneACompleter != 0)
+                        {
+                            classeurResultats.RemplirAbsences(ligneACompleter, index, classeurAbsences, periode);
+                        }
+                    }
+                    classeurResultats.RemplirJoursTravaillesPeriode(periode);
+                    //Fermeture du classeurAbsences
+                    classeurAbsences.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
                     #region Remplissage des Heures supplémentaires
@@ -109,10 +110,11 @@ namespace BiGPay
                             classeurResultats.RemplirHeuresSupplementaires(ligneACompleter,index, classeurHeuresSup, periode);
                         }
                     }
-
+                    //Fermeture du classeurHeuresSup
+                    classeurHeuresSup.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
-                    #region Remplissage des astreintes
+                    #region Remplissage des codes d'astreintes
                     ////Remplissage de la partie liée aux codes d'astreintes dans le classeur de résultats
                     for (int index = 2; index <= classeurAstreintes.DerniereLigne; index++)
                     {
@@ -123,11 +125,54 @@ namespace BiGPay
                             classeurResultats.RemplirCodesAstreintes(ligneACompleter, index, classeurAstreintes);
                         }
                     }
+                    //Fermeture du classeurCollaborateurs
+                    classeurAstreintes.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
                     #region Traitement de CRA pdf pour remplissage tickets asteinte
-                    #endregion
+                    // Recherche du dossier "CRA"
+                    foreach (string dossier in System.IO.Directory.GetDirectories(cheminDossier))
+                    {
+                        if (System.IO.Path.GetFileName(dossier) == "CRA")
+                        {
+                            foreach (string fichier in System.IO.Directory.GetFiles(dossier))
+                            {
+                                // Recherche de fichiers pdf dans le dossier
+                                if (System.IO.Path.GetExtension(fichier) == ".pdf")
+                                {
+                                    // Conversion du fichier pdf vers excel pour copier/coller les données
+                                    Word word = new Word();
+                                    word.OuvrirPdf(fichier);
+                                    word.CopierLesDonnees();
+                                    Excel excel = new Excel();
+                                    excel.CollerLesDonnees();
 
+                                    //Initialisation du classeur pdf qui deviendra le classeur généré ci-dessus
+                                    ClasseurPdf classeurPdf = new ClasseurPdf();
+                                    classeurPdf.Classeur = excel.Workbook;
+                                    classeurPdf.InitialiserClasseur();
+                                    //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
+                                    long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurPdf, 3);
+                                    if (ligneACompleter != 0)
+                                    {
+                                        classeurPdf.ListeTickets = classeurPdf.ObtenirTicketsAstreintes();
+
+                                        foreach (Ticket ticket in classeurPdf.ListeTickets)
+                                        {
+                                            classeurResultats.RemplirTicketsAstreintes(ticket, ligneACompleter, classeurPdf, periode);
+                                        }
+                                    }
+                                    word.FermerDocumentEtApplication();
+                                    //Fermeture du classeurPdf 
+                                    classeurPdf.Classeur.Close(false, Type.Missing, Type.Missing);
+                                }
+                            }
+                        }
+                    }
+                    #endregion
+                    
+                    // Affichage du résultat
+                    classeurResultats.ExcelApp.Visible = true ;
                     //Fermeture du formulaire
                     Close();
                 }

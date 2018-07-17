@@ -14,9 +14,9 @@ namespace BiGPay
         public DateTime Date { get; set; }
         public TimeSpan HeureDebut { get; set; }
         public Decimal NbHeures { get; set; }
-        public TimeSpan _HeureDepartNuit = new TimeSpan(20, 0, 0);
-        public TimeSpan _HeureFinNuit = new TimeSpan(8, 0, 0);
-        public TimeSpan _Minuit = new TimeSpan(0, 0, 0);
+        public static TimeSpan _HeureDepartNuit = new TimeSpan(20, 0, 0);
+        public static  TimeSpan _HeureFinNuit = new TimeSpan(8, 0, 0);
+        public static TimeSpan _Minuit = new TimeSpan(0, 0, 0);
         public const int _ColonneCollaborateurs = 1;
         public const int _ColonneDate = 3;
         public const int _ColonneHeureDebut = 5;
@@ -39,7 +39,7 @@ namespace BiGPay
             TrierFeuille(FeuilleActive.Range[ConvertirColonneEnLettre(_PremiereColonne) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne], 1);
         }
 
-        private Boolean DateTombeEnSemaine(DateTime dateAtester)
+        public static Boolean _DateTombeEnSemaine(DateTime dateAtester)
         {
             int jourSemaineDateAtester = (int)dateAtester.DayOfWeek;
             if(jourSemaineDateAtester > 0 && jourSemaineDateAtester < 6)
@@ -47,7 +47,7 @@ namespace BiGPay
             return false;
         }
 
-        private Boolean DateTombeUnSamedi(DateTime dateAtester)
+        public static Boolean _DateTombeUnSamedi(DateTime dateAtester)
         {
             int jourSemaineDateAtester = (int)dateAtester.DayOfWeek;
             if (jourSemaineDateAtester == 6)
@@ -55,7 +55,7 @@ namespace BiGPay
             return false;
         }
 
-        private Boolean DateTombeUnDimancheOuUnJourFerie(DateTime dateAtester, Periode periode)
+        public static Boolean _DateTombeUnDimancheOuUnJourFerie(DateTime dateAtester, Periode periode)
         {
             List<DateTime> joursFeriesPeriode = periode.JoursFeries;
             int jourSemaineDateAtester = (int)dateAtester.DayOfWeek;
@@ -69,14 +69,14 @@ namespace BiGPay
             return false;
         }
 
-        private Boolean HeureEntre8hEt20h(TimeSpan heureAtester)
+        public static Boolean _HeureEntre8hEt20h(TimeSpan heureAtester)
         {
             if (heureAtester >= _HeureFinNuit && heureAtester <= _HeureDepartNuit)
                 return true;
             return false;
         }
 
-        private Boolean HeureEntre20hEt8h(TimeSpan heureAtester)
+        public static Boolean _HeureEntre20hEt8h(TimeSpan heureAtester)
         {
             if (heureAtester >= _HeureDepartNuit || heureAtester >= _Minuit && heureAtester <= _HeureFinNuit)
                 return true;
@@ -106,13 +106,13 @@ namespace BiGPay
             heuresSupplementaires = nbHeures + "h le " + Date.ToShortDateString();
 
             // Test date et heure
-            if (DateTombeEnSemaine(Date))
+            if (_DateTombeEnSemaine(Date))
             {
-                if (HeureEntre8hEt20h(HeureDebut))
+                if (_HeureEntre8hEt20h(HeureDebut))
                 {
                     heuresSupplementaires =  "Sem-8-20|" + heuresSupplementaires ;
                 }
-                else if (HeureEntre20hEt8h(HeureDebut))
+                else if (_HeureEntre20hEt8h(HeureDebut))
                 {
                     heuresSupplementaires = "Sem-20-8|" + heuresSupplementaires;
                 }
@@ -121,13 +121,13 @@ namespace BiGPay
                     heuresSupplementaires = "Erreur";
                 }
             }
-            else if (DateTombeUnSamedi(Date))
+            else if (_DateTombeUnSamedi(Date))
             {
-                if (HeureEntre8hEt20h(HeureDebut))
+                if (_HeureEntre8hEt20h(HeureDebut))
                 {
                     heuresSupplementaires = "Sam-8-20|" + heuresSupplementaires;
                 }
-                else if (HeureEntre20hEt8h(HeureDebut))
+                else if (_HeureEntre20hEt8h(HeureDebut))
                 {
                     heuresSupplementaires = "Sam-20-8|" + heuresSupplementaires;
                 }
@@ -136,13 +136,13 @@ namespace BiGPay
                     heuresSupplementaires = "Erreur";
                 }
             }
-            else if (DateTombeUnDimancheOuUnJourFerie(Date, periode))
+            else if (_DateTombeUnDimancheOuUnJourFerie(Date, periode))
             {
-                if (HeureEntre8hEt20h(HeureDebut))
+                if (_HeureEntre8hEt20h(HeureDebut))
                 {
                     heuresSupplementaires = "DF-8-20|" + heuresSupplementaires;
                 }
-                else if (HeureEntre20hEt8h(HeureDebut))
+                else if (_HeureEntre20hEt8h(HeureDebut))
                 {
                     heuresSupplementaires = "DF-20-8|" + heuresSupplementaires;
                 }

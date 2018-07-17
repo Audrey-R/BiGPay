@@ -18,8 +18,8 @@ namespace BiGPay
         public ClasseurAstreintes(string libelleClasseur)
         {
             ExcelApp = (Microsoft.Office.Interop.Excel.Application)Marshal.GetActiveObject("Excel.Application");
-            ExcelApp.Application.DisplayAlerts = true;
-            ExcelApp.Visible = true;
+            ExcelApp.Application.DisplayAlerts = false;
+            ExcelApp.Visible = false;
             Classeur = ExcelApp.Workbooks.Open(libelleClasseur);
             Libelle = Classeur.Name;
             FeuilleActive = Classeur.Sheets[1];

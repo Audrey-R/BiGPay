@@ -10,10 +10,10 @@ namespace BiGPay
 {
     public class ClasseurCollaborateurs : ClasseurExcel
     {
-        public const int _ColonneEntreeSortie = 1;
+        public const int _ColonneEntreeSortie = 0;
         public const int _ColonneCollaborateurs = 2;
         public const int _ColonneMatricules = 3;
-        public const int _ColonneDatesEntreeSortie = 8;
+        public const int _ColonneDatesEntreeSortie = 7;
 
         public ClasseurCollaborateurs() { }
         public ClasseurCollaborateurs(string libelleClasseur)
@@ -33,7 +33,6 @@ namespace BiGPay
 
         public string ObtenirEntreesEtSortiesDuMois(int index)
         {
-            ActiverClasseur();
             DateTime? DateEntreeSortie = null;
             string dateEntreeSortieSplit = "";
             string entreeSortie = Donnees.Cells[index, _ColonneEntreeSortie].Text;
