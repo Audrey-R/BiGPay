@@ -35,5 +35,29 @@ namespace BiGPay
             Code = FeuilleActive.Cells[index, _ColonneCode].Text;
             return Code;
         }
+
+        public string ObtenirCollaborateursQuiOntEteDAstreinteSurLaPeriode()
+        {
+            int compteur = 0;
+            string chaine = "";
+            for(int index = 1; index <= DerniereLigne; index++)
+            {
+                string collaborateur = FeuilleActive.Cells[index, _ColonneCollaborateurs].Text;
+                if (chaine == "" && collaborateur != "" && collaborateur != "Collaborateur")
+                {
+                    compteur++;
+                    chaine = compteur + " Collaborateur(s) concerné(s) par les tickets d'astreinte, sur cette période. Le dossier CRA contient-il le(s) CRA pdf de : " + collaborateur ;
+                }
+                else if (chaine != "" && collaborateur != "" && collaborateur != "Collaborateur")
+                {
+                    chaine = chaine + ", " + collaborateur;
+                }
+                else
+                {
+                    chaine = "";
+                }
+            }
+            return chaine +" ?";
+        }
     }
 }

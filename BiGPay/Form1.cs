@@ -114,69 +114,80 @@ namespace BiGPay
                     classeurHeuresSup.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
-                    #region Remplissage des codes d'astreintes
+                    #region Remplissage des astreintes
                     ////Remplissage de la partie liée aux codes d'astreintes dans le classeur de résultats
-                    for (int index = 2; index <= classeurAstreintes.DerniereLigne; index++)
+                    DialogResult result = MessageBox.Show(classeurAstreintes.ObtenirCollaborateursQuiOntEteDAstreinteSurLaPeriode(), "Extraction des tickets d'astreintes", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                    if(result == DialogResult.No)
                     {
-                        //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
-                        long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurAstreintes, index);
-                        if (ligneACompleter != 0)
-                        {
-                            classeurResultats.RemplirCodesAstreintes(ligneACompleter, index, classeurAstreintes);
-                        }
+                        classeurAstreintes.FermerTousLesProcessus();
+                        Close();
                     }
-                    //Fermeture du classeurCollaborateurs
-                    classeurAstreintes.Classeur.Close(false, Type.Missing, Type.Missing);
-                    #endregion
-
-                    #region Traitement de CRA pdf pour remplissage tickets asteinte
-                    // Recherche du dossier "CRA"
-                    foreach (string dossier in System.IO.Directory.GetDirectories(cheminDossier))
+                    else
                     {
-                        if (System.IO.Path.GetFileName(dossier) == "CRA")
+                        for (int index = 2; index <= classeurAstreintes.DerniereLigne; index++)
                         {
-                            foreach (string fichier in System.IO.Directory.GetFiles(dossier))
+                            //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
+                            long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurAstreintes, index);
+                            if (ligneACompleter != 0)
                             {
-                                // Recherche de fichiers pdf dans le dossier
-                                if (System.IO.Path.GetExtension(fichier) == ".pdf")
+                                classeurResultats.RemplirCodesAstreintes(ligneACompleter, index, classeurAstreintes);
+                            }
+                        }
+                        //Fermeture du classeurCollaborateurs
+                        classeurAstreintes.Classeur.Close(false, Type.Missing, Type.Missing);
+                        
+
+                        #region Traitement de CRA pdf pour remplissage tickets asteinte
+                        // Recherche du dossier "CRA"
+                        foreach (string dossier in System.IO.Directory.GetDirectories(cheminDossier))
+                        {
+                            if (System.IO.Path.GetFileName(dossier) == "CRA")
+                            {
+                                foreach (string fichier in System.IO.Directory.GetFiles(dossier))
                                 {
-                                    // Conversion du fichier pdf vers excel pour copier/coller les données
-                                    Word word = new Word();
-                                    word.OuvrirPdf(fichier);
-                                    word.CopierLesDonnees();
-                                    Excel excel = new Excel();
-                                    excel.CollerLesDonnees();
-
-                                    //Initialisation du classeur pdf qui deviendra le classeur généré ci-dessus
-                                    ClasseurPdf classeurPdf = new ClasseurPdf();
-                                    classeurPdf.Classeur = excel.Workbook;
-                                    classeurPdf.InitialiserClasseur();
-                                    //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
-                                    long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurPdf, 3);
-                                    if (ligneACompleter != 0)
+                                    // Recherche de fichiers pdf dans le dossier
+                                    if (System.IO.Path.GetExtension(fichier) == ".pdf")
                                     {
-                                        classeurPdf.ListeTickets = classeurPdf.ObtenirTicketsAstreintes();
+                                        // Conversion du fichier pdf vers excel pour copier/coller les données
+                                        Word word = new Word();
+                                        word.OuvrirPdf(fichier);
+                                        word.CopierLesDonnees();
+                                        Excel excel = new Excel();
+                                        excel.CollerLesDonnees();
 
-                                        foreach (Ticket ticket in classeurPdf.ListeTickets)
+                                        //Initialisation du classeur pdf qui deviendra le classeur généré ci-dessus
+                                        ClasseurPdf classeurPdf = new ClasseurPdf();
+                                        classeurPdf.Classeur = excel.Workbook;
+                                        classeurPdf.InitialiserClasseur();
+                                        //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
+                                        long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurPdf, 3);
+                                        if (ligneACompleter != 0)
                                         {
-                                            classeurResultats.RemplirTicketsAstreintes(ticket, ligneACompleter, classeurPdf, periode);
+                                            classeurPdf.ListeTickets = classeurPdf.ObtenirTicketsAstreintes();
+
+                                            foreach (Ticket ticket in classeurPdf.ListeTickets)
+                                            {
+                                                classeurResultats.RemplirTicketsAstreintes(ticket, ligneACompleter, classeurPdf, periode);
+                                            }
                                         }
+                                        word.FermerDocumentEtApplication();
+                                        //Fermeture du classeurPdf 
+                                        classeurPdf.Classeur.Close(false, Type.Missing, Type.Missing);
                                     }
-                                    word.FermerDocumentEtApplication();
-                                    //Fermeture du classeurPdf 
-                                    classeurPdf.Classeur.Close(false, Type.Missing, Type.Missing);
                                 }
                             }
                         }
+                        #endregion
+
+                        // Affichage du résultat
+                        classeurResultats.ExcelApp.Visible = true;
+                        //Fermeture du formulaire
+                        Close();
                     }
                     #endregion
-                    
-                    // Affichage du résultat
-                    classeurResultats.ExcelApp.Visible = true ;
-                    //Fermeture du formulaire
-                    Close();
                 }
                 #endregion
+
             }
         }
 
