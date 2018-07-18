@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -46,7 +47,7 @@ namespace BiGPay
         {
             ExcelApp = new Application();
             ExcelApp.Application.DisplayAlerts = false;
-            ExcelApp.Visible = true;
+            ExcelApp.Visible = false;
             Classeur = ExcelApp.Workbooks.Add();
             Libelle = Classeur.Name;
             FeuilleActive = Classeur.Sheets[1];
@@ -444,11 +445,209 @@ namespace BiGPay
             #endregion
         }
 
+        public void FormaterClasseur()
+        {
+            FeuilleActive.Range["B2:B3"].Interior.Color = Color.FromArgb(217, 217, 217);
+            FeuilleActive.Cells[2, 2].Value = "Collaborateur";
+            FeuilleActive.Range["C2:C3"].Interior.Color = Color.FromArgb(217, 217, 217);
+            FeuilleActive.Cells[2, 3].Value = "Entrées / Sorties";
+            FeuilleActive.Cells[2, 5].Value = "Jours d'absence";
+            FeuilleActive.Range["E2:R3"].Interior.Color = Color.FromArgb(217, 217, 217);
+            FeuilleActive.Range["E2:R3"].WrapText = true;
+            FeuilleActive.Cells[3, 5].Value = "NB Jours ouvrés M-1";
+            FeuilleActive.Range["E3"].WrapText = true;
+            FeuilleActive.Cells[3, 6].Value = "NB Jours travaillés M-1";
+            FeuilleActive.Range["F3"].WrapText = true;
+            FeuilleActive.Range["E7:F"+ DerniereLigne].EntireColumn.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            FeuilleActive.Cells[3, 7].Value = "Congés payés";
+            FeuilleActive.Cells[3, 9].Value = "Congés exceptionnels";
+            FeuilleActive.Cells[3, 11].Value = "RTT";
+            FeuilleActive.Cells[3, 13].Value = "Récup";
+            FeuilleActive.Cells[3, 15].Value = "Formation";
+            FeuilleActive.Cells[3, 17].Value = "Maladie";
+            FeuilleActive.Range["T2:T3"].Interior.Color = Color.FromArgb(217, 217, 217);
+            FeuilleActive.Cells[2, 20].Value = "Astreintes";
+            FeuilleActive.Range["V2:AG3"].Interior.Color = Color.FromArgb(217, 217, 217);
+            FeuilleActive.Range["V2:AG3"].WrapText = true;
+            FeuilleActive.Cells[2, 22].Value = "Heures supplémentaires";
+            FeuilleActive.Cells[3, 22].Value = "Semaine de 8h à 20h";
+            FeuilleActive.Cells[3, 24].Value = "Semaine de 20h à 8h";
+            FeuilleActive.Cells[3, 26].Value = "Samedi de 8h à 20h";
+            FeuilleActive.Cells[3, 28].Value = "Samedi de 20h à 8h";
+            FeuilleActive.Cells[3, 30].Value = "Dimanche/Jour férié de 8h à 20h";
+            FeuilleActive.Cells[3, 32].Value = "Dimanche/Jour férié de 20h à 8h";
+            FeuilleActive.Cells[2, 1].EntireRow.Font.Bold = true;
+            FeuilleActive.Cells[2, 1].EntireRow.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            FeuilleActive.Cells[2, 1].EntireRow.VerticalAlignment = XlHAlign.xlHAlignCenter;
+            FeuilleActive.Cells[3, 1].EntireRow.Font.Bold = true;
+            FeuilleActive.Cells[3, 1].EntireRow.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            FeuilleActive.Cells[3, 1].EntireRow.VerticalAlignment = XlHAlign.xlHAlignCenter;
+            FeuilleActive.Cells[6, 2].EntireRow.Font.Bold = true;
+            FeuilleActive.Cells[6, 2].EntireRow.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            FeuilleActive.Cells[6, 2].EntireRow.VerticalAlignment = XlHAlign.xlHAlignCenter;
+            FeuilleActive.Range["G7:G" + DerniereLigne].EntireColumn.Font.Bold = true;
+
+
+            FeuilleActive.Range["1:1"].RowHeight = 7.25;
+            FeuilleActive.Range["2:2"].RowHeight = 38;
+            FeuilleActive.Range["3:3"].RowHeight = 52.50;
+            FeuilleActive.Range["4:4"].RowHeight = 6;
+            FeuilleActive.Range["5:5"].RowHeight = 0;
+            FeuilleActive.Range["6:6"].RowHeight = 25;
+            
+            FeuilleActive.get_Range("B2", "B3").Merge();
+            FeuilleActive.get_Range("C2", "C3").Merge();
+            FeuilleActive.get_Range("E2", "R2").Merge();
+            FeuilleActive.get_Range("G3", "H3").Merge();
+            FeuilleActive.get_Range("I3", "J3").Merge();
+            FeuilleActive.get_Range("K3", "L3").Merge();
+            FeuilleActive.get_Range("M3", "N3").Merge();
+            FeuilleActive.get_Range("O3", "P3").Merge();
+            FeuilleActive.get_Range("Q3", "R3").Merge();
+            FeuilleActive.get_Range("T2", "T3").Merge();
+            FeuilleActive.get_Range("V2", "AG2").Merge();
+            FeuilleActive.get_Range("V3", "W3").Merge();
+            FeuilleActive.get_Range("X3", "Y3").Merge();
+            FeuilleActive.get_Range("Z3", "AA3").Merge();
+            FeuilleActive.get_Range("AB3", "AC3").Merge();
+            FeuilleActive.get_Range("AD3", "AE3").Merge();
+            FeuilleActive.get_Range("AF3", "AG3").Merge();
+
+            FormaterLesBordures(123,161,206, FeuilleActive.Range["B7", "C" + DerniereLigne].Borders);
+            FormaterLesBordures(123, 161, 206, FeuilleActive.Range["E7", "R" + DerniereLigne].Borders);
+            FormaterLesBordures(123, 161, 206, FeuilleActive.Range["T7", "T" + DerniereLigne].Borders);
+            FormaterLesBordures(123, 161, 206, FeuilleActive.Range["V7", "AG" + DerniereLigne].Borders);
+
+            FormaterLaCouleurDefond("B", 255, 242, 204, 252, 228, 214);
+            FormaterLaCouleurDefond("E", 255, 242, 204, 252, 228, 214);
+            FormaterLaCouleurDefond("F", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("G", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("H", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("I", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("J", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("K", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("L", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("M", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("N", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("O", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("P", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("Q", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("R", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("T", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("V", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("W", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("X", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("Y", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("Z", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("AA", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("AB", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("AC", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("AD", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("AE", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("AF", 242, 242, 242, 217, 217, 217);
+            FormaterLaCouleurDefond("AG", 242, 242, 242, 217, 217, 217);
+
+            FormaterUneBordure(FeuilleActive.Range["I7", "I" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["K7", "K" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["M7", "M" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["O7", "O" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["Q7", "Q" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["V7", "V" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["X7", "X" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["Z7", "Z" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["AB7", "AB" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["AD7", "AD" + DerniereLigne].Borders);
+            FormaterUneBordure(FeuilleActive.Range["AF7", "AF" + DerniereLigne].Borders);
+
+            FeuilleActive.Columns["A:C"].AutoFit();
+            FeuilleActive.Columns["G:R"].AutoFit();
+            FeuilleActive.Columns["T"].AutoFit();
+            FeuilleActive.Columns["V:AG"].AutoFit();
+            FeuilleActive.Columns["A"].ColumnWidth = 2.44;
+            FeuilleActive.Columns["D"].ColumnWidth = 2.44;
+            FeuilleActive.Columns["F"].ColumnWidth = 2.44;
+            FeuilleActive.Columns["G"].ColumnWidth = 4.44;
+            FeuilleActive.Range["G7:G" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["I"].ColumnWidth = 4.44;
+            FeuilleActive.Range["I7:I" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["K"].ColumnWidth = 4.44;
+            FeuilleActive.Range["K7:K" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["M"].ColumnWidth = 4.44;
+            FeuilleActive.Range["M7:M" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["O"].ColumnWidth = 4.44;
+            FeuilleActive.Range["O7:O" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["Q"].ColumnWidth = 4.44;
+            FeuilleActive.Range["Q7:Q" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["S"].ColumnWidth = 2.44;
+            FeuilleActive.Range["S7:S" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["U"].ColumnWidth = 2.44;
+            FeuilleActive.Range["U7:U" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["V"].ColumnWidth = 4.44;
+            FeuilleActive.Range["V7:V" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["X"].ColumnWidth = 4.44;
+            FeuilleActive.Range["X7:X" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["Z"].ColumnWidth = 4.44;
+            FeuilleActive.Range["Z7:Z" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["AB"].ColumnWidth = 4.44;
+            FeuilleActive.Range["AB7:AB" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["AD"].ColumnWidth = 4.44;
+            FeuilleActive.Range["AD7:AD" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["AF"].ColumnWidth = 4.44;
+            FeuilleActive.Range["AF7:AF" + DerniereLigne].EntireColumn.Font.Bold = true;
+            FeuilleActive.Columns["E:F"].ColumnWidth = 13;
+
+
+            FeuilleActive.Range["7:7"].EntireRow.Delete();
+            FeuilleActive.Range[DerniereLigne + 1 + ":" + DerniereLigne + 1].EntireRow.Delete();
+            FeuilleActive.Range[DerniereLigne + ":" + DerniereLigne].EntireRow.Delete();
+
+            FormaterLesBordures(255, 255, 255, FeuilleActive.Range["B2", "C3"].Borders);
+            FormaterLesBordures(255, 255, 255, FeuilleActive.Range["E2", "R3"].Borders);
+            FormaterLesBordures(255, 255, 255, FeuilleActive.Range["V2", "AG3"].Borders);
+        }
+
         private Decimal? ReecrireSiNull(Decimal? valeurAVerifier)
         {
             if (valeurAVerifier == null)
                 return 0;
             return valeurAVerifier;
+        }
+
+        private void FormaterLaCouleurDefond(string colonne, byte R1, byte G1, byte B1, byte R2, byte G2, byte B2)
+        {
+            for (int index = 7; index <= DerniereLigne; index++)
+            {
+                int indexSuivant = index++;
+                FeuilleActive.Range[colonne + index].Interior.Color = Color.FromArgb(R1, G1, B1);
+                FeuilleActive.Range[colonne + indexSuivant].Interior.Color = Color.FromArgb(R2, G2, B2);
+            }
+            if (FeuilleActive.Cells[DerniereLigne + 1, 2].Text == "")
+                FeuilleActive.Range[colonne + DerniereLigne + 1].Interior.Color = Color.FromArgb(255, 255, 255);
+        }
+
+        private void FormaterLesBordures(byte R, byte G, byte B, Borders bordures)
+        {
+            bordures[XlBordersIndex.xlEdgeLeft].LineStyle = XlLineStyle.xlContinuous;
+            bordures[XlBordersIndex.xlEdgeLeft].Weight = XlBorderWeight.xlMedium;
+            bordures[XlBordersIndex.xlEdgeRight].LineStyle = XlLineStyle.xlContinuous;
+            bordures[XlBordersIndex.xlEdgeRight].Weight = XlBorderWeight.xlMedium;
+            bordures[XlBordersIndex.xlEdgeTop].LineStyle = XlLineStyle.xlContinuous;
+            bordures[XlBordersIndex.xlEdgeTop].Weight = XlBorderWeight.xlMedium;
+            bordures[XlBordersIndex.xlEdgeBottom].LineStyle = XlLineStyle.xlContinuous;
+            bordures[XlBordersIndex.xlEdgeBottom].Weight = XlBorderWeight.xlMedium;
+            bordures[XlBordersIndex.xlInsideVertical].LineStyle = XlLineStyle.xlContinuous;
+            bordures[XlBordersIndex.xlInsideVertical].Weight = XlBorderWeight.xlMedium;
+            bordures[XlBordersIndex.xlInsideHorizontal].LineStyle = XlLineStyle.xlContinuous;
+            bordures[XlBordersIndex.xlInsideHorizontal].Weight = XlBorderWeight.xlThin;
+
+            bordures.Color = Color.FromArgb(R, G, B); ;
+        }
+
+        private void FormaterUneBordure(Borders bordures)
+        {
+            bordures[XlBordersIndex.xlEdgeRight].LineStyle = XlLineStyle.xlDash;
+            bordures[XlBordersIndex.xlEdgeRight].Weight = XlBorderWeight.xlThin;
+            bordures.Color = Color.FromArgb(123, 161, 206); ;
         }
     }
 }

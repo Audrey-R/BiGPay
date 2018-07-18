@@ -60,8 +60,6 @@ namespace BiGPay
                     ClasseurAbsences classeurAbsences = new ClasseurAbsences(cheminDossier + @"\Absences.xlsx");
                     ClasseurHeuresSup classeurHeuresSup = new ClasseurHeuresSup(cheminDossier + @"\Heures_sup.xlsx");
                     ClasseurAstreintes classeurAstreintes = new ClasseurAstreintes(cheminDossier + @"\Astreintes.xlsx");
-                    classeurResultats.ExcelApp.Visible = true;
-                    //ClasseurExcel classeurWeekEndFeries = new ClasseurExcel(cheminDossier + @"\Weekend_Feries.xlsx");
                     #endregion
 
                     #region Remplissage_Collaborateurs
@@ -178,6 +176,10 @@ namespace BiGPay
                             }
                         }
                         #endregion
+
+                        #region Mise en forme du classeur de résultats
+                        classeurResultats.FormaterClasseur();
+                        #endregion  
 
                         // Affichage du résultat
                         classeurResultats.ExcelApp.Visible = true;
