@@ -1,6 +1,6 @@
 ﻿namespace BiGPay
 {
-    partial class Form1
+    partial class Form
     {
         /// <summary>
         /// Variable nécessaire au concepteur.
@@ -28,40 +28,44 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.SelectDossier = new System.Windows.Forms.FolderBrowserDialog();
             this.Dossier = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.timer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // Dossier
             // 
-            this.Dossier.Location = new System.Drawing.Point(59, 49);
+            this.Dossier.BackgroundImage = global::BiGPay.Properties.Resources.folder__1_;
+            this.Dossier.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
+            this.Dossier.Cursor = System.Windows.Forms.Cursors.Default;
+            this.Dossier.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Dossier.ForeColor = System.Drawing.SystemColors.ControlLight;
+            this.Dossier.Location = new System.Drawing.Point(53, 24);
             this.Dossier.Name = "Dossier";
-            this.Dossier.Size = new System.Drawing.Size(116, 48);
+            this.Dossier.Size = new System.Drawing.Size(122, 123);
             this.Dossier.TabIndex = 0;
-            this.Dossier.Text = "Sélectionner un dossier";
             this.Dossier.UseVisualStyleBackColor = true;
             this.Dossier.Click += new System.EventHandler(this.Dossier_Click);
             // 
-            // button1
+            // progressBar
             // 
-            this.button1.Location = new System.Drawing.Point(105, 132);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.Button1_Click);
+            this.progressBar.Location = new System.Drawing.Point(12, 163);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(218, 12);
+            this.progressBar.TabIndex = 2;
             // 
-            // Form1
+            // Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Maroon;
             this.ClientSize = new System.Drawing.Size(242, 196);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.progressBar);
             this.Controls.Add(this.Dossier);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "Form";
+            this.Text = "BiGPay";
             this.ResumeLayout(false);
 
         }
@@ -70,7 +74,8 @@
 
         private System.Windows.Forms.FolderBrowserDialog SelectDossier;
         private System.Windows.Forms.Button Dossier;
-        private System.Windows.Forms.Button button1;
+        public System.Windows.Forms.Timer timer;
+        public System.Windows.Forms.ProgressBar progressBar;
     }
 }
 

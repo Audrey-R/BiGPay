@@ -5,17 +5,25 @@ using PdfConverterLibrary;
 
 namespace BiGPay
 {
-    public partial class Form1 : Form
+    public partial class Form : System.Windows.Forms.Form
     {
-        public Form1()
+        private Compteur ProgressionCompteur { get; set; }
+        private ClasseurResultats ClasseurResultats {get; set;}
+
+        public Form()
         {
             InitializeComponent();
+            ProgressionCompteur = new Compteur(this);
+            progressBar.Maximum = 8;
         }
 
         private void Dossier_Click(object sender, EventArgs e)
         {
             if (SelectDossier.ShowDialog() == DialogResult.OK)
             {
+                ProgressionCompteur.DepartDecompte();
+                ProgressionCompteur.Incrementation(null, null);
+
                 #region Parcours du dossier et Vérification de la présence des fichiers
                 //Chemins du dossier de fichiers d'extractions
                 string cheminDossier = SelectDossier.SelectedPath;
@@ -49,10 +57,11 @@ namespace BiGPay
                     MessageBox.Show("Vérifiez les noms donnés à vos classeurs, un ou plusieurs sont manquants.");
                 }
                 #endregion
-
+                
                 #region Traitement
                 else
                 {
+                    ProgressionCompteur.Incrementation(null, null);
                     #region Initialisation_Classeurs
                     //Création des variables qui contiendront les données des classeurs
                     ClasseurResultats classeurResultats = new ClasseurResultats();
@@ -62,6 +71,7 @@ namespace BiGPay
                     ClasseurAstreintes classeurAstreintes = new ClasseurAstreintes(cheminDossier + @"\Astreintes.xlsx");
                     #endregion
 
+                    ProgressionCompteur.Incrementation(null, null);
                     #region Remplissage_Collaborateurs
                     //Remplissage de la partie liée aux collaborateurs dans le classeur de résultats
                     classeurResultats.RemplirColonneCollaborateurs(classeurCollaborateurs);
@@ -79,6 +89,7 @@ namespace BiGPay
                     classeurCollaborateurs.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
+                    ProgressionCompteur.Incrementation(null, null);
                     #region Remplissage_Absences
                     ////Remplissage de la partie liée aux absences dans le classeur de résultats
                     Periode periode = Periode._CreerPeriodePaie(classeurAbsences);
@@ -97,6 +108,7 @@ namespace BiGPay
                     classeurAbsences.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
+                    ProgressionCompteur.Incrementation(null, null);
                     #region Remplissage des Heures supplémentaires
                     ////Remplissage de la partie liée aux heures supplémentaires dans le classeur de résultats
                     for (int index = 2; index <= classeurHeuresSup.DerniereLigne; index++)
@@ -112,6 +124,7 @@ namespace BiGPay
                     classeurHeuresSup.Classeur.Close(false, Type.Missing, Type.Missing);
                     #endregion
 
+                    ProgressionCompteur.Incrementation(null, null);
                     #region Remplissage des astreintes
                     ////Remplissage de la partie liée aux codes d'astreintes dans le classeur de résultats
                     DialogResult result = MessageBox.Show(classeurAstreintes.ObtenirCollaborateursQuiOntEteDAstreinteSurLaPeriode(), "Extraction des tickets d'astreintes", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
@@ -122,6 +135,7 @@ namespace BiGPay
                     }
                     else
                     {
+                        Activate();
                         for (int index = 2; index <= classeurAstreintes.DerniereLigne; index++)
                         {
                             //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
@@ -133,8 +147,8 @@ namespace BiGPay
                         }
                         //Fermeture du classeurCollaborateurs
                         classeurAstreintes.Classeur.Close(false, Type.Missing, Type.Missing);
-                        
 
+                        ProgressionCompteur.Incrementation(null, null);
                         #region Traitement de CRA pdf pour remplissage tickets asteinte
                         // Recherche du dossier "CRA"
                         foreach (string dossier in System.IO.Directory.GetDirectories(cheminDossier))
@@ -151,6 +165,7 @@ namespace BiGPay
                                         word.OuvrirPdf(fichier);
                                         word.CopierLesDonnees();
                                         Excel excel = new Excel();
+                                        excel.ExcelApp.Visible = false;
                                         excel.CollerLesDonnees();
 
                                         //Initialisation du classeur pdf qui deviendra le classeur généré ci-dessus
@@ -176,44 +191,26 @@ namespace BiGPay
                             }
                         }
                         #endregion
-
+                        ProgressionCompteur.Incrementation(null, null);
                         #region Mise en forme du classeur de résultats
                         classeurResultats.FormaterClasseur();
-                        #endregion  
-
-                        // Affichage du résultat
-                        classeurResultats.ExcelApp.Visible = true;
-                        //Fermeture du formulaire
-                        Close();
+                        #endregion
+                        ClasseurResultats = classeurResultats;
                     }
                     #endregion
                 }
                 #endregion
 
+                #region Affichage
+                ProgressionCompteur.Incrementation(null, null);
+                // Affichage du résultat
+                ClasseurResultats.ExcelApp.WindowState = Microsoft.Office.Interop.Excel.XlWindowState.xlMaximized;
+                ClasseurResultats.ExcelApp.Visible = true;
+                ClasseurResultats.ActiverClasseur();
+                //Fermeture du formulaire
+                Close();
+                #endregion
             }
         }
-
-        private void Button1_Click(object sender, EventArgs e)
-        {
-            Periode periode = new Periode(new DateTime(2018,12,1));
-            MessageBox.Show(periode.NbJoursOuvresPeriode.ToString());
-            //List<DateTime> liste = periode.RetournerTousLesJoursFeriesPourLaPeriode(DateTime.Now);
-            //periode.ExtraireJourDeSolidarite(liste, periode.LundiDePentecote);
-            //MessageBox.Show("Pâques    : " + liste.Contains(periode.LundiDePaques) + "\n" +
-            //                 "Ascension : " + liste.Contains(periode.JeudiDeLAscension) + "\n" +
-            //                 "Pentecôte : " + liste.Contains(periode.LundiDePentecote) + "\n" +
-            //                 "Jour de l'an : " + liste.Contains(periode.JourDeLAn) + "\n" +
-            //                 "Fete du travail : " + liste.Contains(periode.FeteDuTravail) + "\n" +
-            //                 "8 mai : " + liste.Contains(periode.HuitMai1945) + "\n" +
-            //                 "Fete nationale : " + liste.Contains(periode.FeteNationale) + "\n" +
-            //                 "Assomption : " + liste.Contains(periode.Assomption) + "\n" +
-            //                 "Toussait : " + liste.Contains(periode.Toussaint) + "\n" +
-            //                 "Armistice : " + liste.Contains(periode.Armistice) + "\n" +
-            //                 "Noel : " + liste.Contains(periode.Noel) + "\n" +
-            //                 "DateDebut : " + periode.DateDebutPeriode.ToLongDateString() + "\n" +
-            //                 "DateFin : " + periode.DateFinPeriode.ToLongDateString() + "\n");
-        }
-
-        
     }
 }

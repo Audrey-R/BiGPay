@@ -17,8 +17,7 @@ namespace BiGPay
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
-            Application.Run(new Form1());
+            Application.Run(new Form());
             
             //Chemins des fichiers
             //string path = System.IO.Path.GetDirectoryName(SelectPdf.FileName);

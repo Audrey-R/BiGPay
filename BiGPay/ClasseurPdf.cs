@@ -19,13 +19,15 @@ namespace BiGPay
         public List<Ticket> ListeTickets { get; set; }
 
 
-        public ClasseurPdf() { }
+        public ClasseurPdf()
+        {
+        }
 
         public void InitialiserClasseur()
         {
             ExcelApp = (Microsoft.Office.Interop.Excel.Application)Marshal.GetActiveObject("Excel.Application");
-            ExcelApp.Application.DisplayAlerts = true;
-            ExcelApp.Visible = true;
+            ExcelApp.Application.DisplayAlerts = false;
+            ExcelApp.Visible = false;
             FeuilleActive = Classeur.Sheets[1];
             DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, 2].End(XlDirection.xlUp).Row;
             DerniereColonne = FeuilleActive.Cells[_PremiereColonne, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
