@@ -23,6 +23,7 @@ namespace BiGPay
             Classeur = ExcelApp.Workbooks.Open(libelleClasseur);
             Libelle = Classeur.Name;
             FeuilleActive = Classeur.Sheets[1];
+            FeuilleActive.Columns["A:ZZ"].AutoFit();
             DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, _ColonneCollaborateurs].End(XlDirection.xlUp).Row;
             DerniereColonne = FeuilleActive.Cells[_PremiereColonne, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
             Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
@@ -42,10 +43,11 @@ namespace BiGPay
             string chaine = "";
             for(int index = 1; index <= DerniereLigne; index++)
             {
+                compteur++;
                 string collaborateur = FeuilleActive.Cells[index, _ColonneCollaborateurs].Text;
                 if (chaine == "" && collaborateur != "" && collaborateur != "Collaborateur")
                 {
-                    compteur++;
+                    
                     chaine = compteur + " Collaborateur(s) concerné(s) par les tickets d'astreinte, sur cette période. Le dossier CRA contient-il le(s) CRA pdf de : " + collaborateur ;
                 }
                 else if (chaine != "" && collaborateur != "" && collaborateur != "Collaborateur")

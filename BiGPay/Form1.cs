@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.Office.Interop.Excel;
 using PdfConverterLibrary;
@@ -32,7 +33,6 @@ namespace BiGPay
                 bool absences = false;
                 bool astreintes = false;
                 bool heuresSup = false;
-                bool weekEndferies= false;
                 foreach (string fichier in System.IO.Directory.GetFiles(cheminDossier))
                 {
                     if (System.IO.Path.GetExtension(fichier) == ".xlsx")
@@ -47,12 +47,10 @@ namespace BiGPay
                             astreintes = true;
                         if (nomClasseurExcel == "Heures_sup")
                             heuresSup = true;
-                        if (nomClasseurExcel == "Weekend_Feries")
-                            weekEndferies = true;
                     }
                 }
                 if (collaborateurs == false || absences == false || astreintes == false
-                   || heuresSup == false || weekEndferies == false)
+                   || heuresSup == false)
                 {
                     MessageBox.Show("Vérifiez les noms donnés à vos classeurs, un ou plusieurs sont manquants.");
                 }
@@ -173,18 +171,26 @@ namespace BiGPay
                                         classeurPdf.Classeur = excel.Workbook;
                                         classeurPdf.InitialiserClasseur();
                                         //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
-                                        long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurPdf, 3);
-                                        if (ligneACompleter != 0)
+                                        if (classeurPdf.NomCollaborateur != "" && classeurPdf.NomCollaborateur != "Client")
                                         {
-                                            classeurPdf.ListeTickets = classeurPdf.ObtenirTicketsAstreintes();
-
-                                            foreach (Ticket ticket in classeurPdf.ListeTickets)
+                                            long ligneACompleter = classeurResultats.RechercherCollaborateur(classeurPdf, 3);
+                                            if (ligneACompleter != 0)
                                             {
-                                                classeurResultats.RemplirTicketsAstreintes(ticket, ligneACompleter, classeurPdf, periode);
+                                                classeurPdf.ListeTickets = classeurPdf.ObtenirTicketsAstreintes();
+
+                                                foreach (Ticket ticket in classeurPdf.ListeTickets)
+                                                {
+                                                    classeurResultats.RemplirTicketsAstreintes(ticket, ligneACompleter, classeurPdf, periode);
+                                                }
                                             }
                                         }
-                                        word.FermerDocumentEtApplication();
+                                        else
+                                        {
+                                            MessageBox.Show("Une erreur est survenue lors de la conversion du CRA pdf '" + System.IO.Path.GetFileNameWithoutExtension(fichier) + "', impossible de récupérer le nom du collaborateur et de traiter ses tickets d'astreinte, si il en a.", "Extraction des tickets d'astreintes", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                                            Activate();
+                                        }
                                         //Fermeture du classeurPdf 
+                                        word.FermerDocumentEtApplication();
                                         classeurPdf.Classeur.Close(false, Type.Missing, Type.Missing);
                                     }
                                 }
@@ -204,9 +210,12 @@ namespace BiGPay
                 #region Affichage
                 ProgressionCompteur.Incrementation(null, null);
                 // Affichage du résultat
-                ClasseurResultats.ExcelApp.WindowState = Microsoft.Office.Interop.Excel.XlWindowState.xlMaximized;
-                ClasseurResultats.ExcelApp.Visible = true;
-                ClasseurResultats.ActiverClasseur();
+                if(Marshal.GetActiveObject("Excel.Application") != null)
+                {
+                    ClasseurResultats.ExcelApp.WindowState = Microsoft.Office.Interop.Excel.XlWindowState.xlMaximized;
+                    ClasseurResultats.ExcelApp.Visible = true;
+                    ClasseurResultats.ActiverClasseur();
+                }
                 //Fermeture du formulaire
                 Close();
                 #endregion

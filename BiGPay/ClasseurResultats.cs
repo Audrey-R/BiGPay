@@ -316,7 +316,7 @@ namespace BiGPay
         {
             Range celluleACompleter;
             // Définition de la cellule à compléter selon le type d'heures supplémentaires retourné
-            if (destination == "Sem-8-20")
+            if (destination == "Sem-8-20" || destination == "Sem-Erreur")
             {
                 celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sem_8_20];
              }
@@ -324,7 +324,7 @@ namespace BiGPay
             {
                 celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sem_20_8];
             }
-            else if (destination == "Sam-8-20")
+            else if (destination == "Sam-8-20" || destination == "Sam-Erreur")
             {
                 celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sam_8_20];
             }
@@ -332,7 +332,7 @@ namespace BiGPay
             {
                 celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_Sam_20_8];
             }
-            else if (destination == "DF-8-20")
+            else if (destination == "DF-8-20" || destination == "DF-Erreur")
             {
                 celluleACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneHeureSup_DF_8_20];
            }
@@ -350,7 +350,7 @@ namespace BiGPay
         private Range DefinitionDeLaCelluleTotalACompleter(string destination, long ligneACompleter)
         {
             Range celluleTotalACompleter;
-            if (destination == "Sem-8-20")
+            if (destination == "Sem-8-20" || destination == "Sem-Erreur")
             {
                 celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sem_8_20];
             }
@@ -358,7 +358,7 @@ namespace BiGPay
             {
                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sem_20_8];
             }
-            else if (destination == "Sam-8-20")
+            else if (destination == "Sam-8-20" || destination == "Sem-Erreur")
             {
                celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sam_8_20];
             }
@@ -366,7 +366,7 @@ namespace BiGPay
             {
                 celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_Sam_20_8];
             }
-            else if (destination == "DF-8-20")
+            else if (destination == "DF-8-20" || destination == "Sem-Erreur")
             {
                 celluleTotalACompleter = FeuilleActive.Cells[ligneACompleter, _ColonneTotalHeureSup_DF_8_20];
             }
@@ -403,12 +403,11 @@ namespace BiGPay
             #region Traitement
             // Extraction des chaines de caratères
             heureSupAvecDestination = classeurPdf.ObtenirHeuresSupplementairesTicket(ticket, periode).Trim();
-            if (heureSupAvecDestination != "Erreur")
-            {
-                destination = heureSupAvecDestination.Split('|')[0];
-                heureSupSansDestination = heureSupAvecDestination.Split('|')[1].Trim();
-                valeurAEcrire = heureSupSansDestination;
-            }
+           
+            destination = heureSupAvecDestination.Split('|')[0];
+            heureSupSansDestination = heureSupAvecDestination.Split('|')[1].Trim();
+            valeurAEcrire = heureSupSansDestination;
+           
             // Définition de la cellule à compléter selon le type d'heures supplémentaires retourné
             celluleACompleter = DefinitionDeLaCelluleACompleter(destination, ligneACompleter);
             // Définition de la cellule Total à compléter selon le type d'heures supplémentaires retourné
@@ -417,11 +416,25 @@ namespace BiGPay
             // Remplissage de la cellule selon si elle est vide ou non
             if (celluleACompleter != null && celluleACompleter.Text == "")
             {
-                celluleACompleter.Value = valeurAEcrire;
+                if (destination != "Erreur")
+                {
+                    celluleACompleter.Value = valeurAEcrire;
+                }
+                else
+                {
+                    celluleACompleter.Value = valeurAEcrire + " (Heure de début non renseignée dans le CRA)";
+                } 
             }
             else
             {
-                celluleACompleter.Value = celluleACompleter.Text + " et " + valeurAEcrire;
+                if(destination != "Erreur")
+                {
+                    celluleACompleter.Value = celluleACompleter.Text + " et " + valeurAEcrire;
+                }
+                else
+                {
+                    celluleACompleter.Value = celluleACompleter.Text + " et " + valeurAEcrire + " (Heure de début non renseignée dans le CRA)"; ;
+                }
             }
 
             // Remplissage de la cellule du total

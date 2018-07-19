@@ -32,6 +32,7 @@ namespace BiGPay
             Classeur = ExcelApp.Workbooks.Open(libelleClasseur);
             Libelle = Classeur.Name;
             FeuilleActive = Classeur.Sheets[1];
+            FeuilleActive.Columns["A:ZZ"].AutoFit();
             DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, _ColonneCollaborateurs].End(XlDirection.xlUp).Row;
             DerniereColonne = FeuilleActive.Cells[_PremiereColonne, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
             Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
@@ -61,7 +62,7 @@ namespace BiGPay
             int jourSemaineDateAtester = (int)dateAtester.DayOfWeek;
             if (jourSemaineDateAtester == 7)
                 return true;
-            for(int index = 0; index <= joursFeriesPeriode.Count ; index ++)
+            for(int index = 0; index < joursFeriesPeriode.Count ; index ++)
             {
                 if (dateAtester == joursFeriesPeriode[index])
                     return true;

@@ -27,6 +27,7 @@ namespace BiGPay
             Classeur = ExcelApp.Workbooks.Open(libelleClasseur);
             Libelle = Classeur.Name;
             FeuilleActive = Classeur.Sheets[1];
+            FeuilleActive.Columns["A:ZZ"].AutoFit();
             DerniereLigne = FeuilleActive.Cells[FeuilleActive.Rows.Count, _ColonneCollaborateurs].End(XlDirection.xlUp).Row;
             DerniereColonne = FeuilleActive.Cells[_PremiereColonne, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
             Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
@@ -51,14 +52,18 @@ namespace BiGPay
 
             #region Dates
             // Réécriture des dates dans le format souhaité
+            DateTime dateTest;
             if (departAbsence != "Premier jour" && departAbsence != "")
             {
-                departAbsence = DateTime.ParseExact(
+                if (!DateTime.TryParse(Convert.ToDateTime(departAbsence).ToString("dd/MM/yyyy"), out dateTest))
+                {
+                    departAbsence = DateTime.ParseExact(
                     departAbsence,
                     Periode._Formats,
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.None)
                     .ToString("dd/MM/yyyy");
+                }
                 DateDepartAbsence = Convert.ToDateTime(departAbsence);
                 // Initialisation de la date au premier jour du mois, si inférieure
                 if (DateDepartAbsence.Month != periode.DateDebutPeriode.Month)
@@ -67,12 +72,15 @@ namespace BiGPay
             }
             if (retourAbsence != "Dernier jour" && retourAbsence != "")
             {
-                retourAbsence = DateTime.ParseExact(
+                if (!DateTime.TryParse(Convert.ToDateTime(retourAbsence).ToString("dd/MM/yyyy"), out dateTest))
+                {
+                    retourAbsence = DateTime.ParseExact(
                     retourAbsence,
                     Periode._Formats,
-                    CultureInfo.InvariantCulture, 
+                    CultureInfo.InvariantCulture,
                     DateTimeStyles.None)
                     .ToString("dd/MM/yyyy");
+                }
                 DateRetourAbsence = Convert.ToDateTime(retourAbsence);
                 //Initialisation de la date au dernier jour du mois, si supérieure
                 if (DateRetourAbsence.Month != periode.DateFinPeriode.Month)

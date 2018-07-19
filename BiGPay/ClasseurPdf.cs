@@ -34,7 +34,10 @@ namespace BiGPay
             Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
             Collaborateur = FeuilleActive.Cells[3, 1];
             NomCollaborateur = Collaborateur.Text;
-            NomCollaborateur = NomCollaborateur.Split(':')[1].Trim();
+            if(NomCollaborateur !="" && NomCollaborateur != "Client")
+            {
+                NomCollaborateur = NomCollaborateur.Split(':')[1].Trim();
+            }
             FeuilleActive.Cells[3, 1].Value = NomCollaborateur;
         }
 
@@ -55,7 +58,7 @@ namespace BiGPay
                             string details = FeuilleActive.Cells[indexTicket, _ColonneDetails].Text;
                             string heureDebut = "";
                             //Boucle sur chacun des caractères de la chaîne
-                            for (int indexChar = 0; indexChar <= details.Length; indexChar++)
+                            for (int indexChar = 0; indexChar < details.Length; indexChar++)
                             {
                                 //Recherche du chiffre précédant l'unité d'heure, dans la chaine de caractères
                                 int indexCharEstInt, indexCharMoinsUnEstInt;
@@ -88,8 +91,21 @@ namespace BiGPay
                                     heureDebut = "Impossible de déterminer l'heure de début du ticket d'astreinte";
                                 }
                             }
-                            Ticket ticket = new Ticket { Date = Convert.ToDateTime(dateTexte), NbHeures = Convert.ToDecimal(nbHeuresTexte), HeureDebut = new TimeSpan(Convert.ToInt32(heureDebut),0,0)};
-                            listeTickets.Add(ticket);
+                            if (heureDebut != "Impossible de déterminer l'heure de début du ticket d'astreinte")
+                            {
+                                Ticket ticket = new Ticket { Date = Convert.ToDateTime(dateTexte), NbHeures = Convert.ToDecimal(nbHeuresTexte), HeureDebut = new TimeSpan(Convert.ToInt32(heureDebut), 0, 0) };
+                                listeTickets.Add(ticket);
+                            }
+                            else
+                            {
+                                Ticket ticket = new Ticket
+                                {
+                                    Date = Convert.ToDateTime(dateTexte),
+                                    NbHeures = Convert.ToDecimal(nbHeuresTexte)
+                                };
+                                listeTickets.Add(ticket);
+                            }
+                            
                         }
                     }
                 }
@@ -99,7 +115,6 @@ namespace BiGPay
 
         public string ObtenirHeuresSupplementairesTicket(Ticket ticket, Periode periode)
         {
-            
                 string date = ticket.Date.ToShortDateString();
                 string nbheures = ticket.NbHeures.ToString("0.0");
                 if(nbheures.Split(',')[1] == "0")
@@ -119,7 +134,7 @@ namespace BiGPay
                     }
                     else
                     {
-                        ticketRetourne = "Erreur";
+                        ticketRetourne = "Sem-Erreur|" + ticketRetourne;
                     }
                 }
                 else if (ClasseurHeuresSup._DateTombeUnSamedi(ticket.Date))
@@ -134,7 +149,7 @@ namespace BiGPay
                     }
                     else
                     {
-                        ticketRetourne = "Erreur";
+                        ticketRetourne = "Sam-Erreur|" + ticketRetourne;
                     }
                 }
                 else if (ClasseurHeuresSup._DateTombeUnDimancheOuUnJourFerie(ticket.Date, periode))
@@ -149,12 +164,12 @@ namespace BiGPay
                     }
                     else
                     {
-                        ticketRetourne = "Erreur";
+                        ticketRetourne = "DF-Erreur|" + ticketRetourne;
                     }
                 }
                 else
                 {
-                    ticketRetourne = "Erreur";
+                    ticketRetourne = "Sem-Erreur|" + ticketRetourne;
                 }
                 return ticketRetourne;
         }

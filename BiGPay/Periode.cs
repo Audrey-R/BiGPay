@@ -32,12 +32,16 @@ namespace BiGPay
             {
                 //Réécriture de la première date d'absence
                 string premiereAbsence = classeurAbsences.FeuilleActive.Cells[ClasseurExcel._PremiereLigne + 1, ClasseurAbsences._ColonneDepartAbsence].Text;
-                premiereAbsence = DateTime.ParseExact(
+                DateTime dateTest;
+                if(!DateTime.TryParse(Convert.ToDateTime(premiereAbsence).ToString("dd/MM/yyyy"), out dateTest))
+                {
+                     premiereAbsence = DateTime.ParseExact(
                      premiereAbsence,
                      _Formats,
                      CultureInfo.InvariantCulture,
                      DateTimeStyles.None)
                      .ToString("dd/MM/yyyy");
+                }
                 //Conversion de la date réécrite et initialisation dans sa variable
                 classeurAbsences.PremiereDateAbsence = Convert.ToDateTime(premiereAbsence);
                 Periode periode = new Periode(classeurAbsences.PremiereDateAbsence);
