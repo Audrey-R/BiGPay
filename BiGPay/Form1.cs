@@ -9,7 +9,6 @@ namespace BiGPay
     public partial class Form : System.Windows.Forms.Form
     {
         private Compteur ProgressionCompteur { get; set; }
-        private ClasseurResultats ClasseurResultats {get; set;}
 
         public Form()
         {
@@ -74,6 +73,7 @@ namespace BiGPay
                     //Remplissage de la partie liée aux collaborateurs dans le classeur de résultats
                     classeurResultats.RemplirColonneCollaborateurs(classeurCollaborateurs);
                     classeurResultats.RemplirColonneMatricules(classeurCollaborateurs);
+                    classeurResultats.ReecrireNomsCollaborateurs();
                     for (int index = 2; index <= classeurCollaborateurs.DerniereLigne; index++)
                     {
                         //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
@@ -169,7 +169,7 @@ namespace BiGPay
                                         //Initialisation du classeur pdf qui deviendra le classeur généré ci-dessus
                                         ClasseurPdf classeurPdf = new ClasseurPdf();
                                         classeurPdf.Classeur = excel.Workbook;
-                                        classeurPdf.InitialiserClasseur();
+                                        classeurPdf.InitialiserClasseur(System.IO.Path.GetFileNameWithoutExtension(fichier));
                                         //Recherche d'une correspondance de nom entre les deux classeurs et récupération du numéro de la ligne
                                         if (classeurPdf.NomCollaborateur != "" && classeurPdf.NomCollaborateur != "Client")
                                         {
@@ -197,28 +197,25 @@ namespace BiGPay
                             }
                         }
                         #endregion
+
                         ProgressionCompteur.Incrementation(null, null);
                         #region Mise en forme du classeur de résultats
                         classeurResultats.FormaterClasseur();
                         #endregion
-                        ClasseurResultats = classeurResultats;
+                        
+                        #region Affichage
+                        ProgressionCompteur.Incrementation(null, null);
+                        classeurResultats.ExcelApp.WindowState = Microsoft.Office.Interop.Excel.XlWindowState.xlMaximized;
+                        classeurResultats.ExcelApp.Visible = true;
+                        classeurResultats.ActiverClasseur();
+                        #endregion
                     }
                     #endregion
                 }
                 #endregion
-
-                #region Affichage
-                ProgressionCompteur.Incrementation(null, null);
-                // Affichage du résultat
-                if(Marshal.GetActiveObject("Excel.Application") != null)
-                {
-                    ClasseurResultats.ExcelApp.WindowState = Microsoft.Office.Interop.Excel.XlWindowState.xlMaximized;
-                    ClasseurResultats.ExcelApp.Visible = true;
-                    ClasseurResultats.ActiverClasseur();
-                }
+                
                 //Fermeture du formulaire
                 Close();
-                #endregion
             }
         }
     }

@@ -33,7 +33,7 @@ namespace BiGPay
                 //Réécriture de la première date d'absence
                 string premiereAbsence = classeurAbsences.FeuilleActive.Cells[ClasseurExcel._PremiereLigne + 1, ClasseurAbsences._ColonneDepartAbsence].Text;
                 DateTime dateTest;
-                if(!DateTime.TryParse(Convert.ToDateTime(premiereAbsence).ToString("dd/MM/yyyy"), out dateTest))
+                if(!DateTime.TryParse(premiereAbsence, out dateTest))
                 {
                      premiereAbsence = DateTime.ParseExact(
                      premiereAbsence,

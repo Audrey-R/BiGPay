@@ -44,10 +44,11 @@ namespace BiGPay
             for(int index = 1; index <= DerniereLigne; index++)
             {
                 compteur++;
+                if (DerniereLigne == 2)
+                    compteur = 1;
                 string collaborateur = FeuilleActive.Cells[index, _ColonneCollaborateurs].Text;
                 if (chaine == "" && collaborateur != "" && collaborateur != "Collaborateur")
                 {
-                    
                     chaine = compteur + " Collaborateur(s) concerné(s) par les tickets d'astreinte, sur cette période. Le dossier CRA contient-il le(s) CRA pdf de : " + collaborateur ;
                 }
                 else if (chaine != "" && collaborateur != "" && collaborateur != "Collaborateur")

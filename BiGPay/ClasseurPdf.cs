@@ -23,7 +23,7 @@ namespace BiGPay
         {
         }
 
-        public void InitialiserClasseur()
+        public void InitialiserClasseur(string libelleFichier)
         {
             ExcelApp = (Microsoft.Office.Interop.Excel.Application)Marshal.GetActiveObject("Excel.Application");
             ExcelApp.Application.DisplayAlerts = false;
@@ -33,12 +33,7 @@ namespace BiGPay
             DerniereColonne = FeuilleActive.Cells[_PremiereColonne, FeuilleActive.Columns.Count].End(XlDirection.xlToLeft).Column;
             Donnees = FeuilleActive.Range[ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, ConvertirColonneEnLettre(DerniereColonne) + DerniereLigne];
             Collaborateur = FeuilleActive.Cells[3, 1];
-            NomCollaborateur = Collaborateur.Text;
-            if(NomCollaborateur !="" && NomCollaborateur != "Client")
-            {
-                NomCollaborateur = NomCollaborateur.Split(':')[1].Trim();
-            }
-            FeuilleActive.Cells[3, 1].Value = NomCollaborateur;
+            ObtenirNomCollaborateur(libelleFichier);
         }
 
         public List<Ticket> ObtenirTicketsAstreintes()
@@ -172,6 +167,16 @@ namespace BiGPay
                     ticketRetourne = "Sem-Erreur|" + ticketRetourne;
                 }
                 return ticketRetourne;
+        }
+        public void ObtenirNomCollaborateur(string libelleFichier)
+        {
+            string chaineApresCra = libelleFichier.Split('-')[1].Trim();
+            string nomComplet = chaineApresCra.Split('-')[0].Trim();
+            string nom = nomComplet.Split('_')[0].Trim();
+            string prenom = nomComplet.Split('_')[1].Trim();
+            
+            NomCollaborateur = nom + " " + prenom;
+            FeuilleActive.Cells[3, 1].Value = NomCollaborateur;
         }
     }
 }

@@ -55,7 +55,7 @@ namespace BiGPay
             DateTime dateTest;
             if (departAbsence != "Premier jour" && departAbsence != "")
             {
-                if (!DateTime.TryParse(Convert.ToDateTime(departAbsence).ToString("dd/MM/yyyy"), out dateTest))
+                if (!DateTime.TryParse(departAbsence, out dateTest))
                 {
                     departAbsence = DateTime.ParseExact(
                     departAbsence,
@@ -72,7 +72,7 @@ namespace BiGPay
             }
             if (retourAbsence != "Dernier jour" && retourAbsence != "")
             {
-                if (!DateTime.TryParse(Convert.ToDateTime(retourAbsence).ToString("dd/MM/yyyy"), out dateTest))
+                if (!DateTime.TryParse(retourAbsence, out dateTest))
                 {
                     retourAbsence = DateTime.ParseExact(
                     retourAbsence,

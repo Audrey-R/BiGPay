@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Microsoft.Office.Interop.Excel;
 
 namespace BiGPay
@@ -46,7 +47,7 @@ namespace BiGPay
         public ClasseurResultats()
         {
             ExcelApp = new Application();
-            ExcelApp.Application.DisplayAlerts = false;
+            ExcelApp.Application.DisplayAlerts = true;
             ExcelApp.Visible = false;
             Classeur = ExcelApp.Workbooks.Add();
             Libelle = Classeur.Name;
@@ -57,6 +58,7 @@ namespace BiGPay
         public void RemplirColonneCollaborateurs(ClasseurCollaborateurs classeurCollaborateurs)
         {
             DerniereLigne = 6 + classeurCollaborateurs.DerniereLigne;
+                    
             FeuilleActive.Range[
                 ConvertirColonneEnLettre(_ColonneCollaborateurs) + _PremiereLigne, 
                 ConvertirColonneEnLettre(_ColonneCollaborateurs) + DerniereLigne
@@ -65,6 +67,14 @@ namespace BiGPay
                 ConvertirColonneEnLettre(ClasseurCollaborateurs._ColonneCollaborateurs) + ClasseurExcel._PremiereLigne, 
                 ConvertirColonneEnLettre(ClasseurCollaborateurs._ColonneCollaborateurs) + classeurCollaborateurs.DerniereLigne
             ].Value;
+        }
+
+        public void ReecrireNomsCollaborateurs()
+        {
+            for (int index = _PremiereLigne; index <= DerniereLigne; index++)
+            {
+                FeuilleActive.Range[ConvertirColonneEnLettre(_ColonneCollaborateurs) + index].Value = EnleverLesAccents(FeuilleActive.Range[ConvertirColonneEnLettre(_ColonneCollaborateurs) + index].Text);
+            }
         }
 
         public void RemplirColonneMatricules(ClasseurCollaborateurs classeurCollaborateurs)
@@ -91,15 +101,17 @@ namespace BiGPay
             if (colonneCollaborateursSource - 1 > 0)
                 colonneCollaborateursSource = colonneCollaborateursSource - 1;
             classeurSource.Collaborateur = classeurSource.Donnees.Cells[index, colonneCollaborateursSource];
+            string nomCollaborateurSansAccent = EnleverLesAccents(classeurSource.Collaborateur.Text);
             LigneAcompleter = 0;
-            if (classeurSource.Collaborateur.Text != "Collaborateur")
+            if (nomCollaborateurSansAccent != "Collaborateur")
             {
-                Collaborateur = FeuilleActive.Cells[_PremiereLigne, _ColonneCollaborateurs]
-                                .Find(classeurSource.Collaborateur.Text,
+                string test = FeuilleActive.Cells[_PremiereLigne+1, _ColonneCollaborateurs].Text;
+                Collaborateur = FeuilleActive.Cells[_PremiereLigne+1, _ColonneCollaborateurs]
+                                .Find(nomCollaborateurSansAccent,
                                 Type.Missing, XlFindLookIn.xlValues, XlLookAt.xlPart, Type.Missing,
                                 XlSearchDirection.xlNext, Type.Missing, Type.Missing, Type.Missing
                                 );
-                if (Collaborateur.Text == classeurSource.Collaborateur.Text)
+                if (Collaborateur.Text == nomCollaborateurSansAccent)
                 {
                     LigneAcompleter = Collaborateur.Row;
                 }
@@ -661,6 +673,23 @@ namespace BiGPay
             bordures[XlBordersIndex.xlEdgeRight].LineStyle = XlLineStyle.xlDash;
             bordures[XlBordersIndex.xlEdgeRight].Weight = XlBorderWeight.xlThin;
             bordures.Color = Color.FromArgb(123, 161, 206); ;
+        }
+
+        static string EnleverLesAccents(string chaine)
+        {
+            var normalizedString = chaine.Normalize(NormalizationForm.FormD);
+            var stringBuilder = new StringBuilder();
+
+            foreach (var c in normalizedString)
+            {
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (unicodeCategory != UnicodeCategory.NonSpacingMark)
+                {
+                    stringBuilder.Append(c);
+                }
+            }
+
+            return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }
