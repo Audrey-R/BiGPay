@@ -17,11 +17,8 @@ namespace BiGPay
         public const int _ColonneCollaborateurs = 1;
         public string NomCollaborateur { get; set; }
         public List<Ticket> ListeTickets { get; set; }
-
-
-        public ClasseurPdf()
-        {
-        }
+        
+        public ClasseurPdf(){}
 
         public void InitialiserClasseur(string libelleFichier)
         {
@@ -88,7 +85,7 @@ namespace BiGPay
                             }
                             if (heureDebut != "Impossible de déterminer l'heure de début du ticket d'astreinte")
                             {
-                                Ticket ticket = new Ticket { Date = Convert.ToDateTime(dateTexte), NbHeures = Convert.ToDecimal(nbHeuresTexte), HeureDebut = new TimeSpan(Convert.ToInt32(heureDebut), 0, 0) };
+                                Ticket ticket = new Ticket { Date = Convert.ToDateTime(dateTexte), NbHeures = Convert.ToDecimal(nbHeuresTexte), HeureDebut = new TimeSpan(Convert.ToInt32(heureDebut), 0, 0), Collaborateur = NomCollaborateur };
                                 listeTickets.Add(ticket);
                             }
                             else

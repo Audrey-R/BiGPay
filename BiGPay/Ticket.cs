@@ -11,5 +11,6 @@ namespace BiGPay
         public DateTime Date { get; set; }
         public Decimal NbHeures { get; set; }
         public TimeSpan HeureDebut { get; set; }
+        public string Collaborateur { get; set; }
     }
 }

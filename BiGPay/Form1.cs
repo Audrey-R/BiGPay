@@ -180,7 +180,10 @@ namespace BiGPay
 
                                                 foreach (Ticket ticket in classeurPdf.ListeTickets)
                                                 {
-                                                    classeurResultats.RemplirTicketsAstreintes(ticket, ligneACompleter, classeurPdf, periode);
+                                                    if(ticket.Collaborateur == classeurResultats.FeuilleActive.Cells[ligneACompleter, 2].Text)
+                                                    {
+                                                        classeurResultats.RemplirTicketsAstreintes(ticket, ligneACompleter, classeurPdf, periode);
+                                                    }
                                                 }
                                             }
                                         }

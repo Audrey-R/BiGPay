@@ -105,7 +105,6 @@ namespace BiGPay
             LigneAcompleter = 0;
             if (nomCollaborateurSansAccent != "Collaborateur")
             {
-                string test = FeuilleActive.Cells[_PremiereLigne+1, _ColonneCollaborateurs].Text;
                 Collaborateur = FeuilleActive.Cells[_PremiereLigne+1, _ColonneCollaborateurs]
                                 .Find(nomCollaborateurSansAccent,
                                 Type.Missing, XlFindLookIn.xlValues, XlLookAt.xlPart, Type.Missing,
